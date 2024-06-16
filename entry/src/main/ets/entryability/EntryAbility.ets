@@ -1,7 +1,7 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { UserSettingClass } from '@common/basic';
+import { AdvertClass, defaultAd, UserSettingClass } from '@common/basic';
 
 
 
@@ -14,21 +14,35 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
   }
 
-  onWindowStageCreate(windowStage: window.WindowStage): void {
+  async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
 
-    // const userSetting = new UserSettingClass(this.context)
-    //
-    // userSetting.setAdvert({adTime: 3, showAd: true})  // 测试用户配置持久化存储成功
-    // Main window is created, set main page for this ability
+
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
-    windowStage.loadContent('pages/Index', (err) => {
-      if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
-        return;
-      }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
-    });
+    // 1. 查询配置, 是否要显示广告
+    // 模拟发请求, 查询广告配置
+    const ad = await new Promise<AdvertClass>((resolve) => {
+        setTimeout(() => {
+          resolve(defaultAd) // artTS进阶  resolve 表示成功的返回值
+        }, 500)
+    })
+
+    // 存到用户的持久化存储中
+    const userSetting = new UserSettingClass(this.context)
+    userSetting.setAdvert(ad)
+
+    // 如果要显示广告-不能直接显示首页
+    if(ad.showAd){
+    //   💥💥 如何创建一个子页面, 显示子页面 和 销毁子页面
+    //   创建子窗口
+      const win = await windowStage.createSubWindow('ad_window')
+      await win.showWindow() // 打开子窗口
+      win.setUIContent('pages/Start/Start')  // 显示那个页面的内容做为子窗口的页面
+    }
+
+    windowStage.loadContent('pages/Index');
+
+
   }
 
   onWindowStageDestroy(): void {
