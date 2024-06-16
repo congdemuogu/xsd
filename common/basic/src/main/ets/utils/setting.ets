@@ -2,6 +2,7 @@
 import { preferences } from '@kit.ArkData'
 import { Context } from '@kit.AbilityKit'
 import { AdvertClass } from '../models'
+import { USER_SETTING_AD, USER_SETTING } from '../constants'
 
 export const defaultAd: AdvertClass = {
   showAd: true,
@@ -21,13 +22,13 @@ export class UserSettingClass {
 
   getStore(){
     // UIAbilityContext  组件的content  getC
-    return preferences.getPreferencesSync(this.context, {name: 'advert'})
+    return preferences.getPreferencesSync(this.context, {name: USER_SETTING_AD})
   }
 //   保存广告配置到持久化存储中
 
   setAdvert(ad: AdvertClass){
     const store = this.getStore()
-    store.putSync('advert_setting', JSON.stringify(ad) ) // 内存中
+    store.putSync(USER_SETTING, JSON.stringify(ad) ) // 内存中
     store.flush()
   }
 
