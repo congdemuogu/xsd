@@ -1,3 +1,4 @@
+
 @Entry
 @Component
 struct Index {
@@ -18,3 +19,4 @@ struct Index {
     .width('100%')
   }
 }
+

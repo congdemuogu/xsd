@@ -5,6 +5,8 @@
   "main": "",
   "author": "",
   "license": "",
-  "dependencies": {}
+  "dependencies": {
+    "@common/feature1": "file:../common/basic"  // 引入har包
+  }
 }
 
