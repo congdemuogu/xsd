@@ -6,8 +6,7 @@ export struct MainPage {
     Row() {
       Column() {
         Text(this.message)
-          .fontSize(50)
-          .fontWeight(FontWeight.Bold)
+          .fontColor($r('app.color.text_primary')) //
       }
       .width('100%')
     }
