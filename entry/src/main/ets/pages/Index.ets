@@ -1,5 +1,7 @@
+import { getUserInfoAPI, loginAPI } from '@common/basic';
 
-
+loginAPI()
+getUserInfoAPI()
 @Entry
 @Component
 struct Index {

@@ -6,7 +6,7 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "@common/feature1": "file:../common/basic"  // 引入har包
+    "@common/basic": "file:../common/basic"  // 引入har包
   }
 }
 
