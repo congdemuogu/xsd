@@ -17,6 +17,7 @@ export interface ResponseData<T> {
 
 // get post put delete
 export async function requestHttp<T>(url: string, method: http.RequestMethod = http.RequestMethod.GET, data?: object) {
+
   //   原生的http怎么写
   const req = http.createHttp()
 
@@ -86,3 +87,24 @@ export async function requestHttp<T>(url: string, method: http.RequestMethod = h
   }
 
 }
+
+
+export class Request {
+  /** T 代表的接口返回的数据的类型 后端返回的响应体中data的类型 */
+  static get<T = null>(url: string, data?: object): Promise<T> {
+    return requestHttp<T>(url, http.RequestMethod.GET, data)
+  }
+
+  static post<T = null>(url: string, data?: object): Promise<T> {
+    return requestHttp<T>(url, http.RequestMethod.POST, data)
+  }
+
+  static delete<T = null>(url: string, data?: object): Promise<T> {
+    return requestHttp<T>(url, http.RequestMethod.DELETE, data)
+  }
+
+  static put<T = null>(url: string, data?: object): Promise<T> {
+    return requestHttp<T>(url, http.RequestMethod.PUT, data)
+  }
+}
+
