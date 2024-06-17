@@ -1,4 +1,15 @@
+import { requestHttp } from '@hm/basic'
 import { LoginFormModel } from '../../models'
+import { http } from '@kit.NetworkKit'
+
+interface Xxx {
+  key: string
+}
+
+requestHttp<string>('/driver/messages/page', undefined, { key: '123456' } as Xxx)
+
+// requestHttp<string>('/driver/login/account', http.RequestMethod.POST,
+//   { account: 'zhangsan123123', password: '123456' } as LoginFormModel)
 
 @Entry
 @Component
@@ -9,7 +20,6 @@ struct Login {
   @State accountForm: LoginFormModel = {
     account: '',
     password: '',
-    gender: 0
   }
 
   // 3. 双向绑定 收集数据
