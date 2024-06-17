@@ -1,28 +1,17 @@
-import { Request, requestHttp } from '@hm/basic'
+import { TOKEN_KEY, UserSettingClass } from '@hm/basic'
+import { loginAPI } from '../../api'
 import { LoginFormModel } from '../../models'
-import { http } from '@kit.NetworkKit'
-
-interface Xxx {
-  key: string
-}
-
-
-// requestHttp<string>('/driver/messages/page', undefined, { key: '123456' } as Xxx)
+import { promptAction, router } from '@kit.ArkUI'
 
 
 @Entry
 @Component
 struct Login {
   @State showLoading: boolean = false
-  // 1. cv 接口文档生成模型
-  // 2. 定义数据
   @State accountForm: LoginFormModel = {
     account: '',
     password: '',
   }
-
-  // 3. 双向绑定 收集数据
-  // 4. 校验数据
 
   @Styles
   loginStyle() {
@@ -38,6 +27,20 @@ struct Login {
       return true
     }
     return false
+  }
+
+  async onLogin() {
+    //   调用登录的接口
+    const token = await loginAPI(this.accountForm)
+    AlertDialog.show({ message: token, alignment: DialogAlignment.Center })
+    //   保存token到APpStorage中 首选项中各一份
+    const userSetting = new UserSettingClass(getContext())
+    userSetting.setToken(token)
+    AppStorage.setOrCreate(TOKEN_KEY, token)
+    //   提示用户
+    promptAction.showToast({ message: '登录成功' })
+    //   跳转到首页上去
+    router.pushUrl({ url: 'pages/Index' })
   }
 
   build() {
@@ -86,6 +89,7 @@ struct Login {
       .height(50)
       .margin({ top: 50 })
       .enabled(this.getFormValidate())
+      .onClick(() => this.onLogin())
     }
     .padding({ left: 32, right: 32 })
     .margin({ top: 40 })
