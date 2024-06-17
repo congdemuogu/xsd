@@ -1,4 +1,4 @@
-import { AdvertClass, UserSettingClass } from '@common/basic'
+import { AdvertClass, UserSettingClass } from '@hm/basic'
 import { window } from '@kit.ArkUI'
 
 @Entry

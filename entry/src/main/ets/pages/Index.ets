@@ -1,7 +1,8 @@
-import { getUserInfoAPI, loginAPI } from '@common/basic';
+import { getUserInfoAPI, loginAPI } from '@hm/basic';
 
 loginAPI()
 getUserInfoAPI()
+
 @Entry
 @Component
 struct Index {

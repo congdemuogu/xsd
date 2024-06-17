@@ -1,7 +1,7 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { AdvertClass, defaultAd, UserSettingClass } from '@common/basic';
+import { AdvertClass, defaultAd, UserSettingClass } from '@hm/basic';
 
 // 需求: 根据用户有无token, 自动加载首页或者登录页面
 // 1. 新建登录页面
