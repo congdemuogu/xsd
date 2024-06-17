@@ -46,7 +46,7 @@ export default class EntryAbility extends UIAbility {
 
     const token = userSetting.getToken()
     if (token) {
-      windowStage.loadContent('pages/Index');
+      windowStage.loadContent('pages/Index/Index');
     } else {
       windowStage.loadContent('pages/Login/Login');
     }

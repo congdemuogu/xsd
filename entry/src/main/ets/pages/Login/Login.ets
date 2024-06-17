@@ -40,7 +40,7 @@ struct Login {
     //   提示用户
     promptAction.showToast({ message: '登录成功' })
     //   跳转到首页上去
-    router.pushUrl({ url: 'pages/Index' })
+    router.pushUrl({ url: 'pages/Index/Index' })
   }
 
   build() {
