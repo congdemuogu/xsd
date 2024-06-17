@@ -3,6 +3,12 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { AdvertClass, defaultAd, UserSettingClass } from '@common/basic';
 
+// 需求: 根据用户有无token, 自动加载首页或者登录页面
+// 1. 新建登录页面
+// 2. 准备工作 token保存的key
+// 3. 统一导出
+// 4. 封装两个函数: 存token  获取token
+// 5. 根据token是否存在判断, 显示哪个页面
 
 // 面向对象-三大特性: 封装\继承\多态
 export default class EntryAbility extends UIAbility {
@@ -19,8 +25,7 @@ export default class EntryAbility extends UIAbility {
 
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
 
-    // 1. 查询配置, 是否要显示广告
-    // 模拟发请求, 查询广告配置
+
     const ad = await new Promise<AdvertClass>((resolve) => {
       setTimeout(() => {
         resolve(defaultAd) // artTS进阶  resolve 表示成功的返回值
@@ -33,14 +38,18 @@ export default class EntryAbility extends UIAbility {
 
     // 如果要显示广告-不能直接显示首页
     if (ad.showAd) {
-      //   💥💥 如何创建一个子窗口
-      //   创建子窗口
+
       const win = await windowStage.createSubWindow('ad_window')
       await win.showWindow() // 打开子窗口
       win.setUIContent('pages/Start/Start') // 显示那个页面的内容做为子窗口的页面
     }
 
-    windowStage.loadContent('pages/Index');
+    const token = userSetting.getToken()
+    if (token) {
+      windowStage.loadContent('pages/Index');
+    } else {
+      windowStage.loadContent('pages/Login/Login');
+    }
 
 
   }

@@ -2,7 +2,7 @@
 import { preferences } from '@kit.ArkData'
 import { Context } from '@kit.AbilityKit'
 import { AdvertClass } from '../models'
-import { USER_SETTING_AD, USER_SETTING } from '../constants'
+import { USER_SETTING_AD, USER_SETTING, TOKEN_KEY } from '../constants'
 
 export const defaultAd: AdvertClass = {
   showAd: true,
@@ -20,23 +20,34 @@ export class UserSettingClass {
     this.context = ctx
   }
 
-  getStore(){
+  getStore() {
     // UIAbilityContext  组件的content  getC
-    return preferences.getPreferencesSync(this.context, {name: USER_SETTING_AD})
+    return preferences.getPreferencesSync(this.context, { name: USER_SETTING_AD })
   }
-//   保存广告配置到持久化存储中
 
-  setAdvert(ad: AdvertClass){
+  setAdvert(ad: AdvertClass) {
     const store = this.getStore()
-    store.putSync(USER_SETTING, JSON.stringify(ad) ) // 内存中
+    store.putSync(USER_SETTING, JSON.stringify(ad)) // 内存中
     store.flush()
   }
 
 
-//   获取持久化存储配置
-  getAdvert(): AdvertClass{
+  getAdvert(): AdvertClass {
     const store = this.getStore()
     const str = store.getSync('advert_setting', JSON.stringify(defaultAd)) as string
     return JSON.parse(str)
+  }
+
+  // 获取token
+  getToken(): string {
+    const store = this.getStore()
+    return store.getSync(TOKEN_KEY, '') as string
+  }
+
+  // 保存token
+  async setToken(token: string) {
+    const store = this.getStore()
+    store.putSync(TOKEN_KEY, token)
+    await store.flush()
   }
 }
