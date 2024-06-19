@@ -22,19 +22,19 @@ export class UserSettingClass {
 
   getStore() {
     // UIAbilityContext  组件的content  getC
-    return preferences.getPreferencesSync(this.context, { name: USER_SETTING_AD })
+    return preferences.getPreferencesSync(this.context, { name: USER_SETTING })
   }
 
   setAdvert(ad: AdvertClass) {
     const store = this.getStore()
-    store.putSync(USER_SETTING, JSON.stringify(ad)) // 内存中
+    store.putSync(USER_SETTING_AD, JSON.stringify(ad)) // 内存中
     store.flush()
   }
 
 
   getAdvert(): AdvertClass {
     const store = this.getStore()
-    const str = store.getSync('advert_setting', JSON.stringify(defaultAd)) as string
+    const str = store.getSync(USER_SETTING_AD, JSON.stringify(defaultAd)) as string
     return JSON.parse(str)
   }
 
