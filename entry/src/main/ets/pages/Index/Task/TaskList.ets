@@ -1,5 +1,6 @@
 import { getTaskListAPI } from '../../../api/task'
 import { TaskInfoItemModel, TaskListParamsModel, TaskTypeEnum } from '../../../models'
+import TaskItemCard from './TaskItem'
 
 @Preview
 @Component
@@ -21,7 +22,15 @@ struct TaskList {
   }
 
   build() {
-    Text(JSON.stringify(this.taskList, null, 2))
+    List() {
+      // 虚拟列表
+      ForEach(this.taskList, (item: TaskInfoItemModel) => {
+        ListItem() {
+          TaskItemCard({ taskItem: item })
+        }
+      })
+
+    }
   }
 }
 
