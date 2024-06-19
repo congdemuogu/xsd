@@ -1,4 +1,5 @@
 import { TabClass } from '@hm/basic'
+import TaskList from './TaskList'
 
 @Component
 export struct TaskTabs {
@@ -42,7 +43,13 @@ export struct TaskTabs {
       Tabs({ index: $$this.currentIndex, controller: this.controller }) {
         ForEach(this.tabList, (item: TabClass) => {
           TabContent() {
-            Text(item.title)
+            if (item.name === 'waiting') {
+              TaskList()
+            } else if (item.name === 'line') {
+              Text('在途')
+            } else {
+              Text('已完成')
+            }
           }
           .tabBar(item.title)
         })
