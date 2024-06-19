@@ -1,18 +1,25 @@
 import { HmCard, HmCardItem } from '@hm/basic'
-import { UserInfoModel } from '../../../models'
-import { getUserInfoAPI } from '../../../api'
+import { UserInfoModel, UserTaskInfoModel, UserTaskInfoParamsModel } from '../../../models'
+import { getUserInfoAPI, getUserTaskInfoAPI } from '../../../api'
+import { router } from '@kit.ArkUI'
 
 @Preview
 @Component
 struct My {
   @State userInfo: UserInfoModel = {} as UserInfoModel
+  @State userTaskInfo: UserTaskInfoModel = {} as UserTaskInfoModel
   @Consume
   @Watch('getUserInfo')
   currentName: string
+  params: UserTaskInfoParamsModel = {
+    year: new Date().getFullYear().toString(),
+    month: (new Date().getMonth() + 1).toString()
+  }
 
   async getUserInfo() {
     if (this.currentName === 'my') {
       this.userInfo = await getUserInfoAPI()
+      this.userTaskInfo = await getUserTaskInfoAPI(this.params)
     }
   }
 
@@ -63,14 +70,18 @@ struct My {
         Text("- 本月任务 -").fontSize(14).fontColor($r('app.color.text_secondary')).lineHeight(20)
         Row() {
           Column() {
-            Text("1000").fontSize(18).fontColor($r('app.color.text_primary')).lineHeight(25).margin({
-              bottom: 17
-            })
+            Text(this.userTaskInfo.taskAmounts?.toString())
+              .fontSize(18)
+              .fontColor($r('app.color.text_primary'))
+              .lineHeight(25)
+              .margin({
+                bottom: 17
+              })
             Text("任务总量").fontSize(12).fontColor($r('app.color.text_primary')).lineHeight(17)
           }.justifyContent(FlexAlign.SpaceAround).layoutWeight(1)
 
           Column() {
-            Text("1000")
+            Text(this.userTaskInfo.completedAmounts?.toString())
               .fontSize(18)
               .fontColor($r('app.color.text_primary'))
               .lineHeight(25)
@@ -79,7 +90,7 @@ struct My {
           }.justifyContent(FlexAlign.SpaceAround).layoutWeight(1)
 
           Column() {
-            Text("1000")
+            Text(this.userTaskInfo.transportMileage?.toString())
               .fontSize(18)
               .fontColor($r('app.color.text_primary'))
               .lineHeight(25)
@@ -107,7 +118,11 @@ struct My {
             AlertDialog.show({ message: '点我干啥', alignment: DialogAlignment.Center })
           }
         })
-        HmCardItem({ leftText: '系统设置', showRightIcon: false, showBottomBorder: false })
+        HmCardItem({
+          leftText: '系统设置', showBottomBorder: false, onRightClick: () => {
+            router.pushUrl({ url: 'pages/Setting/Setting' })
+          }
+        })
 
       }
 
