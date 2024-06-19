@@ -1,7 +1,7 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { AdvertClass, defaultAd, UserSettingClass } from '@hm/basic';
+import { AdvertClass, defaultAd, TOKEN_KEY, UserSettingClass } from '@hm/basic';
 
 // 需求: 根据用户有无token, 自动加载首页或者登录页面
 // 1. 新建登录页面
@@ -45,6 +45,7 @@ export default class EntryAbility extends UIAbility {
     }
 
     const token = userSetting.getToken()
+    AppStorage.setOrCreate(TOKEN_KEY, token) // 💥💥每次打卡启动页时, 记得把token从首选中同步到APpStorage中
     if (token) {
       windowStage.loadContent('pages/Index/Index');
     } else {
