@@ -10,6 +10,33 @@ export struct TaskTabs {
   @State currentIndex: number = 0
   controller = new TabsController()
 
+  @Builder
+  getTabBar(item: TabClass, index: number) {
+    Column() {
+      Text(item.title)
+        .fontSize(16)
+        .fontColor(this.currentIndex === index ? $r('app.color.text_primary') : $r('app.color.text_secondary'))
+        .fontWeight(600)
+        .animation({
+          duration: 300
+        })
+        .margin({
+          bottom: 10
+        })
+      Divider()
+        .strokeWidth(4)
+        .color($r('app.color.primary'))
+        .lineCap(LineCapStyle.Round)
+        .width(this.currentIndex === index ? 23 : 0)
+        .animation({
+          duration: 300
+        })
+    }
+    .onClick(() => {
+      this.controller.changeIndex(index)
+    })
+  }
+
   build() {
     Stack({ alignContent: Alignment.TopStart }) {
       Tabs({ index: $$this.currentIndex, controller: this.controller }) {
@@ -24,16 +51,16 @@ export struct TaskTabs {
       //   Row 占满一行, 高度跟Tabs的标题栏高度一致
       Row({ space: 20 }) {
         ForEach(this.tabList, (item: TabClass, index) => {
-          Text(item.title)
-            .onClick(() => {
-              this.controller.changeIndex(index)
-            })
+          this.getTabBar(item, index)
         })
       }
+      .padding({
+        left: 40,
+        right: 40
+      })
       .width('100%')
-      .height(60)
-      .backgroundColor(Color.Pink)
-
+      .height(50)
+      .backgroundColor($r("app.color.white"))
     }
   }
 }
