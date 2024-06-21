@@ -31,11 +31,16 @@ struct TaskList {
 
   }
 
-  async onLoad() {
+  async onLoad(isRefresh?: boolean) {
     this.loading = true
 
     const data = await getTaskListAPI(this.params) // page: 1   2
-    this.taskList.push(...data.items)
+
+    if (isRefresh) {
+      this.taskList = data.items // 刷新要覆盖数据
+    } else {
+      this.taskList.push(...data.items) // 无限滚动 要拼接数据
+    }
     this.params.page++ // 2 3
 
     if (this.params.page > data.pages) {
@@ -85,6 +90,12 @@ struct TaskList {
 
   @State status: RefreshStatus = RefreshStatus.Inactive
 
+  async onRefresh() {
+    this.params.page = 1 // 重置数据
+    this.finished = false // 重置数据
+    await this.onLoad(true) // 再次发请求, 覆盖旧数据
+  }
+
   build() {
     Refresh({ refreshing: $$this.refreshing, builder: this.getRefreshBuilder }) {
       List() {
@@ -111,9 +122,11 @@ struct TaskList {
         this.onLoad()
       })
     }
-    .onStateChange((state) => {
+    .onStateChange(async (state) => {
       this.status = state
-      
+      //  每次下拉刷新前, 要把旧的数据重置掉
+      await this.onRefresh() // 再次请求第一页数据
+      this.refreshing = false
     })
   }
 }
