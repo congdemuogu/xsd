@@ -1,7 +1,7 @@
 import { getTaskListAPI } from '../../../api/task'
 import { TaskInfoItemModel, TaskListParamsModel, TaskTypeEnum } from '../../../models'
 import TaskItemCard from './TaskItem'
-import { promptAction } from '@kit.ArkUI'
+import HmList from '@hm/basic/src/main/ets/components/HmList'
 
 @Preview
 @Component
@@ -12,27 +12,8 @@ struct TaskList {
     status: TaskTypeEnum.Waiting,
   } as TaskListParamsModel
   @State taskList: TaskInfoItemModel[] = []
-  @State loading: boolean = false // 表示是否正在请求下一页数据
   @State finished: boolean = false // 服务器上没有更多数据了
-
-  @Builder
-  getBottom() {
-    Row() {
-      if (this.finished) {
-        Text('没有更多数据了')
-      } else {
-        LoadingProgress()
-          .width(50)
-      }
-
-    }
-    .width('100%')
-    .justifyContent(FlexAlign.Center)
-
-  }
-
-  async onLoad(isRefresh?: boolean) {
-    this.loading = true
+  onLoad = async (isRefresh?: boolean) => {
 
     const data = await getTaskListAPI(this.params) // page: 1   2
 
@@ -46,88 +27,59 @@ struct TaskList {
     if (this.params.page > data.pages) {
       this.finished = true // 服务器上没有更多数据了
     }
-    this.loading = false
   } // 防抖或者节流
-
-  // 1. 如何开启下拉刷新
-  // 2. 如何根据下拉的状态, 显示不同的文字
-  // 3. 要从第一页重新开始请求数据
-
-  @State refreshing: boolean = false
-
-  getRefreshText() {
-    switch (this.status) {
-      case RefreshStatus.Inactive:
-        return ''
-      case RefreshStatus.Drag:
-        return '继续下拉'
-
-      case RefreshStatus.OverDrag:
-        return '松手刷新'
-      case RefreshStatus.Refresh:
-        return '刷新中'
-      default:
-        return ''
-    }
-  }
-
-  @Builder
-  getRefreshBuilder() {
-    // 控制 显示不同的文字, 自定义文字提示的
-    Row({ space: 10 }) {
-      LoadingProgress()
-        .color($r('app.color.primary'))
-        .width(40)
-        .height(40)
-      Text(this.getRefreshText())
-        .fontColor($r('app.color.text_secondary'))
-        .fontSize(14)
-    }
-    .justifyContent(FlexAlign.Center)
-    .height(50)
-    .width('100%')
-  }
-
-  @State status: RefreshStatus = RefreshStatus.Inactive
-
-  async onRefresh() {
+  onRefresh = async () => {
     this.params.page = 1 // 重置数据
     this.finished = false // 重置数据
     await this.onLoad(true) // 再次发请求, 覆盖旧数据
   }
 
+  @Builder
+  renderItem(item: object) {
+    TaskItemCard({ taskItem: item as TaskInfoItemModel })
+  }
+
   build() {
-    Refresh({ refreshing: $$this.refreshing, builder: this.getRefreshBuilder }) {
-      List() {
-        // 虚拟列表
-        ForEach(this.taskList, (item: TaskInfoItemModel) => {
-          ListItem() {
-            TaskItemCard({ taskItem: item })
-          }
-        })
-
-        ListItem() {
-          this.getBottom()
-        }
-
-      }
-      .onReachEnd(() => {
-        if (this.loading) {
-          return
-        }
-
-        if (this.finished) {
-          return
-        }
-        this.onLoad()
-      })
-    }
-    .onStateChange(async (state) => {
-      this.status = state
-      //  每次下拉刷新前, 要把旧的数据重置掉
-      await this.onRefresh() // 再次请求第一页数据
-      this.refreshing = false
+    HmList({
+      finished: this.finished,
+      dataSource: this.taskList,
+      onLoad: this.onLoad,
+      onRefresh: this.onRefresh,
+      finishedText: '我是有底线的',
+      renderItem: this.renderItem
     })
+
+    // Refresh({ refreshing: $$this.refreshing, builder: this.getRefreshBuilder }) {
+    //   List() {
+    //     // 虚拟列表
+    //     ForEach(this.taskList, (item: TaskInfoItemModel) => {
+    //       ListItem() {
+    //         TaskItemCard({ taskItem: item })
+    //       }
+    //     })
+    //
+    //     ListItem() {
+    //       this.getBottom()
+    //     }
+    //
+    //   }
+    //   .onReachEnd(() => {
+    //     if (this.loading) {
+    //       return
+    //     }
+    //
+    //     if (this.finished) {
+    //       return
+    //     }
+    //     this.onLoad()
+    //   })
+    // }
+    // .onStateChange(async (state) => {
+    //   this.status = state
+    //   //  每次下拉刷新前, 要把旧的数据重置掉
+    //   await this.onRefresh() // 再次请求第一页数据
+    //   this.refreshing = false
+    // })
   }
 }
 
