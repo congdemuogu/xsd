@@ -50,37 +50,6 @@ struct TaskList {
       renderItem: this.renderItem
     })
 
-    // Refresh({ refreshing: $$this.refreshing, builder: this.getRefreshBuilder }) {
-    //   List() {
-    //     // 虚拟列表
-    //     ForEach(this.taskList, (item: TaskInfoItemModel) => {
-    //       ListItem() {
-    //         TaskItemCard({ taskItem: item })
-    //       }
-    //     })
-    //
-    //     ListItem() {
-    //       this.getBottom()
-    //     }
-    //
-    //   }
-    //   .onReachEnd(() => {
-    //     if (this.loading) {
-    //       return
-    //     }
-    //
-    //     if (this.finished) {
-    //       return
-    //     }
-    //     this.onLoad()
-    //   })
-    // }
-    // .onStateChange(async (state) => {
-    //   this.status = state
-    //   //  每次下拉刷新前, 要把旧的数据重置掉
-    //   await this.onRefresh() // 再次请求第一页数据
-    //   this.refreshing = false
-    // })
   }
 }
 
