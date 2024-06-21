@@ -1,4 +1,4 @@
-import { CommonRouterParams, HmNavBar, HmToggleCard } from '@hm/basic'
+import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard } from '@hm/basic'
 import { router } from '@kit.ArkUI'
 import { getTaskDetailAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
@@ -66,12 +66,12 @@ struct TaskDetail {
       Column() {
         Row() {
           Text("起").baseTextIconStyle()
-          Text("北京市昌平区回龙观街道西三旗桥东金燕龙写字楼8877号").baseTextStyle()
+          Text(this.taskInfoData.startAddress).baseTextStyle()
         }.margin({ top: 21 })
 
         Row() {
           Text("止").baseTextIconStyle().backgroundColor($r('app.color.primary'))
-          Text("河南省郑州市路北区北清路99号").baseTextStyle()
+          Text(this.taskInfoData.endAddress).baseTextStyle()
         }.margin({ top: 14.5 })
       }
       .alignItems(HorizontalAlign.Start)
@@ -92,36 +92,67 @@ struct TaskDetail {
 
     this.getBaseContentItem({
       title: '任务编号',
-      value: '2132324324343434'
+      value: this.taskInfoData.transportTaskId
     })
     this.getBaseContentItem({
       title: '联系人',
-      value: '2132324324343434'
+      value: this.taskInfoData.startHandoverName
     })
     this.getBaseContentItem({
       title: '联系电话',
-      value: '2132324324343434',
+      value: this.taskInfoData.startHandoverPhone,
       icon: $r('app.media.ic_phone')
     })
     this.getBaseContentItem({
       title: '提货时间',
-      value: '2132324324343434'
+      value: this.taskInfoData.planDepartureTime
     })
     this.getBaseContentItem({
       title: '预计送达时间',
-      value: '2132324324343434'
+      value: this.taskInfoData.planArrivalTime
     })
 
   }
 
   @Builder
   getDriverInfo() {
+    this.getBaseContentItem({
+      title: '车牌号',
+      value: this.taskInfoData.licensePlate
+    })
 
+    this.getBaseContentItem({
+      title: '司机姓名',
+      value: this.taskInfoData.driverName
+    })
   }
 
+  // 运输路线
   @Builder
-  getTransitionLineInfo() {
+  getTransLineContent() {
+    Row() {
+      Column() {
+        Text(this.taskInfoData.startProvince)
+          .fontSize(16)
+          .fontColor($r('app.color.text_primary'))
+          .lineHeight(22)
+          .fontWeight(600)
+        Text(this.taskInfoData.startCity).fontSize(14).lineHeight(22)
+      }.width(50)
 
+      Image($r("app.media.ic_right_arrow")).width(36).height(16)
+      Column() {
+        Text(this.taskInfoData.endProvince)
+          .fontSize(16)
+          .fontColor($r('app.color.text_primary'))
+          .lineHeight(22)
+          .fontWeight(600)
+        Text(this.taskInfoData.endCity).fontSize(14).lineHeight(22)
+      }.width(50)
+    }.justifyContent(FlexAlign.SpaceBetween).alignItems(VerticalAlign.Center).width('100%').padding({
+      left: 60,
+      right: 60
+    })
   }
 
   @Builder
@@ -130,41 +161,45 @@ struct TaskDetail {
   }
 
   build() {
-    Column() {
-      HmNavBar({ title: '任务详情' })
+    if (this.taskInfoData.id) {
+      Column() {
+        HmNavBar({ title: '任务详情' })
 
-      Scroll() {
-        Column() {
-          // 基本信息
-          HmToggleCard({ title: '基本信息' }) {
-            this.getBaseInfo()
-          }
+        Scroll() {
+          Column() {
+            // 基本信息
+            HmToggleCard({ title: '基本信息' }) {
+              this.getBaseInfo()
+            }
 
-          HmToggleCard({ title: '车辆司机信息' }) {
-            this.getDriverInfo()
-          }
+            HmToggleCard({ title: '车辆司机信息' }) {
+              this.getDriverInfo()
+            }
 
-          HmToggleCard({ title: '运输路线' }) {
-            this.getTransitionLineInfo()
-          }
+            HmToggleCard({ title: '运输路线' }) {
+              this.getTransLineContent()
+            }
 
-          HmToggleCard({ title: '提货信息' }) {
-            this.getPickUpInfo()
+            HmToggleCard({ title: '提货信息' }) {
+              this.getPickUpInfo()
+            }
           }
         }
-      }
-      .layoutWeight(1)
+        .layoutWeight(1)
 
-      //   底部操作按钮
-      Row() {
-        Button('延迟收货')
-        Button('提货')
-      }
-      .width('100%')
-      .height(60)
-      .justifyContent(FlexAlign.SpaceBetween)
+        //   底部操作按钮
+        Row() {
+          Button('延迟收货')
+          Button('提货')
+        }
+        .width('100%')
+        .height(60)
+        .justifyContent(FlexAlign.SpaceBetween)
 
+      }
+      .backgroundColor($r('app.color.background_page')).height('100%')
+    } else {
+      HmSkeleton({ showAvatar: false, count: 4 })
     }
-    .backgroundColor($r('app.color.background_page')).height('100%')
   }
 }
