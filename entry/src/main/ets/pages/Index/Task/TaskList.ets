@@ -46,6 +46,7 @@ struct TaskList {
       onLoad: this.onLoad,
       onRefresh: this.onRefresh,
       finishedText: '我是有底线的',
+      loadingText: '疯狂加载中',
       renderItem: this.renderItem
     })
 

@@ -1,6 +1,3 @@
-
-
-
 @Preview
 @Component
 struct HmList {
@@ -16,6 +13,7 @@ struct HmList {
   onRefresh: () => void = () => {
   }
   @Prop finishedText: string = '没有更多数据了'
+  @Prop loadingText: string = '拼命加载中'
   @BuilderParam
   renderItem: (item: object) => void
 
@@ -56,16 +54,24 @@ struct HmList {
 
   @Builder
   getBottom() {
-    Row() {
+    Row({ space: 10 }) {
       if (this.finished) {
-        Text(this.finishedText) // 文字不能写死
+        // 此时应该没有动画的loading
+        Text(this.finishedText)
+          .fontSize(14)
+          .fontColor($r("app.color.text_secondary"))
       } else {
+        Text(this.loadingText)
+          .fontSize(14)
+          .fontColor($r("app.color.text_secondary"))
         LoadingProgress()
-          .width(50)
+          .width(20)
+          .aspectRatio(1)
+          .color($r("app.color.text_secondary"))
       }
-
     }
     .width('100%')
+    .height(50)
     .justifyContent(FlexAlign.Center)
 
   }
