@@ -1,4 +1,4 @@
-import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard } from '@hm/basic'
+import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard, HmUpload } from '@hm/basic'
 import { router } from '@kit.ArkUI'
 import { getTaskDetailAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
@@ -157,6 +157,8 @@ struct TaskDetail {
 
   @Builder
   getPickUpInfo() {
+    HmUpload({ title: '请拍照上传回单凭证' })
+    HmUpload({ title: '请拍照上传货物照片凭证' })
 
   }
 
