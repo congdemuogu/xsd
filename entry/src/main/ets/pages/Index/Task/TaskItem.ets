@@ -1,4 +1,5 @@
 import { TaskInfoItemModel } from '../../../models'
+import { router } from '@kit.ArkUI'
 
 @Preview
 @Component
@@ -66,6 +67,13 @@ struct TaskItemCard {
           .fontSize(14)
           .height(32)
           .enabled(this.taskItem.enablePickUp)
+          .onClick(() => {
+            router.pushUrl({
+              url: 'pages/TaskDetail/TaskDetail', params: {
+                id: this.taskItem.id
+              }
+            })
+          })
 
       }.justifyContent(FlexAlign.SpaceBetween).width('100%')
     }
