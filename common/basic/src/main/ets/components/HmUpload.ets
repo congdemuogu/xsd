@@ -15,7 +15,7 @@ export struct HmUpload {
   @Prop imageList: ImageListModel[] = []
 
   async onSelect() {
-    //   上传图片:  ✅1. 打开相册-选择图片  2. 拷贝图片到沙箱(临时缓存目录) 3. 调用上传的API接口
+    //   上传图片:  ✅1. 打开相册-选择图片  3. 调用上传的API接口
 
     const photoPicker = new picker.PhotoViewPicker()
 
@@ -27,7 +27,6 @@ export struct HmUpload {
       //   选择文件类型: 图片  视频
     })
 
-    AlertDialog.show({ message: JSON.stringify(result, null, 2), alignment: DialogAlignment.Center })
 
     if (result.photoUris.length > 0) {
       const list = result.photoUris.map(item => {
@@ -37,41 +36,13 @@ export struct HmUpload {
       this.imageList.push(...list) // 拼接到旧数组中
     }
 
-    //   💥💥 考本文件到缓存目录
 
-    const saveDir = getContext().cacheDir // 缓存目录
-
-
-    // 调用上传API的参数
-    const fileList: request.File[] = []
-
-
-    // AlertDialog.show({ message: targetPath, alignment: DialogAlignment.Center })
-    this.imageList.forEach(item => {
-
-      const fileName = util.generateRandomUUID()
-
-      const targetPath = saveDir + '/' + fileName + '.jpg'
-      const file = fs.openSync(item.url)
-      fs.copyFileSync(file.fd, targetPath) //  拷贝文件 : 1.原始文件的地址或者id,  2.拷贝到的地址或id
-
-      fileList.push({
-        filename: fileName + '.jpg',
-        name: 'file',
-        uri: `internal://cache/${fileName}.jpg`,
-        type: 'jpg'
-      })
-    })
-
-
-    uploadImageAPI(getContext(), fileList)
+    const xxx = await UploadFile(this.imageList)
+    AlertDialog.show({ message: JSON.stringify(xxx, null, 2), alignment: DialogAlignment.Center })
 
 
   }
 
-  // 1. 打开相册- 获取图片
-  // 2. 拷贝到缓存目录中
-  // 3. 调用上传的函数
   index: number = 0
   controller = new CustomDialogController({
     builder: HmPreview({
@@ -124,4 +95,37 @@ export struct HmUpload {
     }
     .alignItems(HorizontalAlign.Start).width('100%')
   }
+}
+
+
+// 封装成一个可以服用的方法, 外部使用上传逻辑时, 直接导入该函数, 即可使用
+export function UploadFile(imageList: ImageListModel[]): Promise<ImageListModel[]> {
+  //   💥💥 考本文件到缓存目录
+  const saveDir = getContext().cacheDir // 缓存目录
+
+
+  // 调用上传API的参数
+  const fileList: request.File[] = []
+
+
+  // AlertDialog.show({ message: targetPath, alignment: DialogAlignment.Center })
+  imageList.forEach(item => {
+
+    const fileName = util.generateRandomUUID()
+
+    const targetPath = saveDir + '/' + fileName + '.jpg'
+    const file = fs.openSync(item.url)
+    // 2. 拷贝图片到沙箱(临时缓存目录)
+    fs.copyFileSync(file.fd, targetPath) //  拷贝文件 : 1.原始文件的地址或者id,  2.拷贝到的地址或id
+
+    fileList.push({
+      filename: fileName + '.jpg',
+      name: 'file',
+      uri: `internal://cache/${fileName}.jpg`,
+      type: 'jpg'
+    })
+  })
+
+
+  return uploadImageAPI(getContext(), fileList)
 }
