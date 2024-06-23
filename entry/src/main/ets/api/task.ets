@@ -1,5 +1,5 @@
 import { Request } from '@hm/basic'
-import { TaskDetailInfoModel, TaskListDataModel, TaskListParamsModel } from '../models'
+import { PickUpParamsModel, TaskDetailInfoModel, TaskListDataModel, TaskListParamsModel } from '../models'
 
 export function getTaskListAPI(data: TaskListParamsModel) {
   return Request.get<TaskListDataModel>('/driver/tasks/list', data)
@@ -8,4 +8,9 @@ export function getTaskListAPI(data: TaskListParamsModel) {
 /** 查询任务详情的API函数 */
 export function getTaskDetailAPI(jobId: string) {
   return Request.get<TaskDetailInfoModel>(`/driver/tasks/details/${jobId}`)
+}
+
+/** 提货的API函数 */
+export function pickUpAPI(data: PickUpParamsModel) {
+  return Request.post('/driver/tasks/takeDelivery', data)
 }

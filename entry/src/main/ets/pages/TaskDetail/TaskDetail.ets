@@ -1,6 +1,6 @@
-import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard, HmUpload } from '@hm/basic'
-import { router } from '@kit.ArkUI'
-import { getTaskDetailAPI } from '../../api/task'
+import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard, HmUpload, UploadFile } from '@hm/basic'
+import { promptAction, router } from '@kit.ArkUI'
+import { getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
 
 
@@ -36,6 +36,10 @@ struct TaskDetail {
   @State taskInfoData: TaskDetailInfoModel = {} as TaskDetailInfoModel
 
   async aboutToAppear() {
+    await this.getTaskDetail()
+  }
+
+  private async getTaskDetail() {
     const params = router.getParams() as CommonRouterParams
     if (params.id) {
       const result = await getTaskDetailAPI(params.id)
@@ -158,8 +162,48 @@ struct TaskDetail {
   /** 提货时上传组件 */
   @Builder
   getPickUpInfo() {
-    HmUpload({ title: '请拍照上传回单凭证', imageList: this.taskInfoData.cargoPickUpPictureList || [] })
-    HmUpload({ title: '请拍照上传货物照片凭证', imageList: this.taskInfoData.cargoPictureList || [] })
+    HmUpload({
+      title: '请拍照上传回单凭证',
+      imageList: this.taskInfoData.cargoPickUpPictureList || [],
+      onImageListChange: (imageList) => {
+        this.taskInfoData.cargoPickUpPictureList = imageList
+      }
+    })
+    HmUpload({
+      title: '请拍照上传货物照片凭证',
+      imageList: this.taskInfoData.cargoPictureList || [],
+      onImageListChange: (imageList) => {
+        this.taskInfoData.cargoPictureList = imageList
+      }
+
+    })
+  }
+
+  async onPickUp() {
+    /** 上传后的图片地址数组 */
+    const cargoPickUpPictureList = await UploadFile(this.taskInfoData.cargoPickUpPictureList)
+    const cargoPictureList = await UploadFile(this.taskInfoData.cargoPictureList)
+    // 调用提货的接口
+    await pickUpAPI({
+      id: this.taskInfoData.id,
+      cargoPickUpPictureList: cargoPickUpPictureList,
+      cargoPictureList: cargoPictureList
+    })
+
+    //  刷新界面
+    this.getTaskDetail()
+    promptAction.showToast({ message: '提货成功' })
+  }
+
+  getPickUpEnable() {
+
+    const cargoPickUpPictureList = this.taskInfoData.cargoPickUpPictureList || []
+    const cargoPictureList = this.taskInfoData.cargoPictureList || []
+    if (cargoPickUpPictureList.length > 0 && cargoPictureList.length > 0) {
+      return true
+    } else {
+      return false
+    }
   }
 
   build() {
@@ -193,6 +237,10 @@ struct TaskDetail {
         Row() {
           Button('延迟收货')
           Button('提货')
+            .enabled(this.getPickUpEnable())
+            .onClick(() => {
+              this.onPickUp()
+            })
         }
         .width('100%')
         .height(60)

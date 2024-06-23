@@ -6,13 +6,18 @@ import { util } from '@kit.ArkTS'
 import { uploadImageAPI } from '../api/upload'
 import request from '@ohos.request'
 
+// 实现提货功能
+// 1. 子组件每次选中了图片, 把选中的图片, 传给父组件TaskDetail
+// 2. 根据图片的数量, 禁用提货按钮
+// 3. 点击事件中, 先调用上传接口
+// 4. 调用提货的接口
 
 @Component
 export struct HmUpload {
   title: string = ""
   maxSelectNumber: number = 3
-  // 1. 该@STate为@Prop
   @Prop imageList: ImageListModel[] = []
+  onImageListChange: (imageList: ImageListModel[]) => void = () => {}
 
   async onSelect() {
     //   上传图片:  ✅1. 打开相册-选择图片  3. 调用上传的API接口
@@ -34,11 +39,11 @@ export struct HmUpload {
       })
 
       this.imageList.push(...list) // 拼接到旧数组中
+
+      this.onImageListChange(this.imageList)
     }
 
 
-    const xxx = await UploadFile(this.imageList)
-    AlertDialog.show({ message: JSON.stringify(xxx, null, 2), alignment: DialogAlignment.Center })
 
 
   }
