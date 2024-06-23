@@ -1,4 +1,5 @@
 import { picker } from '@kit.CoreFileKit'
+import { HmPreview } from '.'
 import { ImageListModel } from '../models'
 
 @Component
@@ -31,6 +32,19 @@ export struct HmUpload {
 
   }
 
+  // 1. 打开相册- 获取图片
+  // 2. 拷贝到缓存目录中
+  // 3. 调用上传的函数
+
+  index: number = 0
+  controller = new CustomDialogController({
+    builder: HmPreview({
+      urls: this.imageList.map(item => item.url),
+      selectedIndex: this.index
+    }),
+    customStyle: true
+  })
+
   build() {
     Column() {
       Text(this.title).fontSize(14).fontColor($r("app.color.text_secondary")).margin({
@@ -39,11 +53,15 @@ export struct HmUpload {
       })
       Grid() {
 
-        ForEach(this.imageList, (item: ImageListModel) => {
+        ForEach(this.imageList, (item: ImageListModel, index) => {
           GridItem() {
             Image(item.url)
               .width(95)
               .height(95)
+              .onClick(() => {
+                this.index = index
+                this.controller.open()
+              })
           }
         })
 
