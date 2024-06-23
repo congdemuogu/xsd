@@ -17,10 +17,13 @@ struct TaskList {
 
     const data = await getTaskListAPI(this.params) // page: 1   2
 
+
+    const items = data.items || []
+
     if (isRefresh) {
-      this.taskList = data.items // 刷新要覆盖数据
+      this.taskList = items // 刷新要覆盖数据
     } else {
-      this.taskList.push(...data.items) // 无限滚动 要拼接数据
+      this.taskList.push(...items) // 无限滚动 要拼接数据
     }
     this.params.page++ // 2 3
 
@@ -49,6 +52,7 @@ struct TaskList {
       loadingText: '疯狂加载中',
       renderItem: this.renderItem
     })
+      .height('100%')
 
   }
 }

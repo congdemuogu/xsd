@@ -1,5 +1,6 @@
 import { TabClass } from '@hm/basic'
 import TaskList from './TaskList'
+import { TaskListParamsModel, TaskTypeEnum } from '../../../models'
 
 @Component
 export struct TaskTabs {
@@ -44,9 +45,9 @@ export struct TaskTabs {
         ForEach(this.tabList, (item: TabClass) => {
           TabContent() {
             if (item.name === 'waiting') {
-              TaskList()
+              TaskList() // 默认待提货
             } else if (item.name === 'line') {
-              Text('在途')
+              TaskList({ params: { page: 1, pageSize: 10, status: TaskTypeEnum.Line } as TaskListParamsModel })
             } else {
               Text('已完成')
             }

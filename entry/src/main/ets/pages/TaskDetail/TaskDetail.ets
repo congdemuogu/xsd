@@ -3,6 +3,7 @@ import { promptAction, router } from '@kit.ArkUI'
 import { getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
 import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
+import { TaskTypeEnum } from '../../models'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -222,25 +223,42 @@ struct TaskDetail {
   // 底部按钮结构
   @Builder
   getBottomBtn() {
-    //已完成不显示任何按钮
     Row() {
-      Button("延迟收货", { type: ButtonType.Capsule })
-        .backgroundColor($r('app.color.btn_gray'))
-        .fontColor($r('app.color.text_primary'))
-        .fontSize(16)
-        .height(50)
-        .width(125)
+      if (this.taskInfoData.status === TaskTypeEnum.Waiting) {
+        Button("延迟收货", { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.btn_gray'))
+          .fontColor($r('app.color.text_primary'))
+          .fontSize(16)
+          .height(50)
+          .width(125)
 
-      Button("提货", { type: ButtonType.Capsule })
-        .backgroundColor($r('app.color.primary'))
-        .fontColor($r('app.color.white'))
-        .height(50)
-        .flexGrow(1)
-        .margin({ left: 13 })
-        .enabled(this.getPickUpEnable())
-        .onClick(() => {
-          this.onPickUp()
-        })
+        Button("提货", { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.primary'))
+          .fontColor($r('app.color.white'))
+          .height(50)
+          .flexGrow(1)
+          .margin({ left: 13 })
+          .enabled(this.getPickUpEnable())
+          .onClick(() => {
+            this.onPickUp()
+          })
+
+        //   交货的逻辑
+      } else if (this.taskInfoData.status === TaskTypeEnum.Line) {
+        Button("上报异常", { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.btn_gray'))
+          .fontColor($r('app.color.text_primary'))
+          .fontSize(16)
+          .height(50)
+          .width(125)
+        Button("交货", { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.primary'))
+          .fontColor($r('app.color.white'))
+          .height(50)
+          .flexGrow(1)
+          .margin({ left: 13 })
+
+      }
     }
     .width('100%')
     .padding({ left: 15, right: 15 })
@@ -248,6 +266,10 @@ struct TaskDetail {
     .justifyContent(FlexAlign.SpaceBetween)
     .alignItems(VerticalAlign.Center)
     .backgroundColor($r('app.color.white'))
+
+
+    //已完成不显示任何按钮
+
   }
 
   build() {

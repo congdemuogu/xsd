@@ -1,10 +1,40 @@
-import { TaskInfoItemModel } from '../../../models'
+import { TaskInfoItemModel, TaskTypeEnum } from '../../../models'
 import { router } from '@kit.ArkUI'
 
 @Preview
 @Component
 struct TaskItemCard {
   @Prop taskItem: TaskInfoItemModel
+
+  // 获取按钮可用性
+  getBtnEnable() {
+    const value = this.taskItem.status
+    if (this.taskItem.enablePickUp) {
+      return true
+    }
+    switch (value) {
+      case TaskTypeEnum.Line:
+      case TaskTypeEnum.Delivered:
+        return true
+      default:
+        return false
+    }
+  }
+
+  // 获取按钮显示文本
+  getBtnText() {
+    const value = this.taskItem.status
+    switch (value) {
+      case TaskTypeEnum.Waiting:
+        return "提货"
+      case TaskTypeEnum.Line:
+        return "交货"
+      case TaskTypeEnum.Delivered:
+        return "回车登记"
+      default:
+        return ""
+    }
+  }
 
   build() {
     Column() {
@@ -61,12 +91,12 @@ struct TaskItemCard {
             .margin({ top: 4 })
         }.alignItems(HorizontalAlign.Start)
 
-        Button("提货", { type: ButtonType.Capsule })
-          .backgroundColor(this.taskItem.enablePickUp ? $r('app.color.primary') : $r('app.color.primary_disabled'))
+        Button(this.getBtnText(), { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.primary'))
           .fontColor($r("app.color.white"))
           .fontSize(14)
           .height(32)
-          .enabled(this.taskItem.enablePickUp)
+          .enabled(this.getBtnEnable())// 可提货
           .onClick(() => {
             router.pushUrl({
               url: 'pages/TaskDetail/TaskDetail', params: {
