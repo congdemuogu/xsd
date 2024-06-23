@@ -2,6 +2,7 @@ import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard, HmUpload, Uploa
 import { promptAction, router } from '@kit.ArkUI'
 import { getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
+import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -42,8 +43,10 @@ struct TaskDetail {
   private async getTaskDetail() {
     const params = router.getParams() as CommonRouterParams
     if (params.id) {
+      this.loading.open()
       const result = await getTaskDetailAPI(params.id)
       this.taskInfoData = result
+      this.loading.close()
     }
   }
 
@@ -180,8 +183,13 @@ struct TaskDetail {
   }
 
   scroller = new Scroller()
+  loading = new CustomDialogController({
+    builder: HmLoading(),
+    customStyle: true
+  })
 
   async onPickUp() {
+    this.loading.open()
     /** 上传后的图片地址数组 */
     const cargoPickUpPictureList = await UploadFile(this.taskInfoData.cargoPickUpPictureList)
     const cargoPictureList = await UploadFile(this.taskInfoData.cargoPictureList)
@@ -191,6 +199,8 @@ struct TaskDetail {
       cargoPickUpPictureList: cargoPickUpPictureList,
       cargoPictureList: cargoPictureList
     })
+
+    this.loading.close()
 
     //  刷新界面
     this.getTaskDetail()
