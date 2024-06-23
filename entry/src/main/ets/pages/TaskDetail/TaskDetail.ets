@@ -179,6 +179,8 @@ struct TaskDetail {
     })
   }
 
+  scroller = new Scroller()
+
   async onPickUp() {
     /** 上传后的图片地址数组 */
     const cargoPickUpPictureList = await UploadFile(this.taskInfoData.cargoPickUpPictureList)
@@ -192,6 +194,7 @@ struct TaskDetail {
 
     //  刷新界面
     this.getTaskDetail()
+    this.scroller.scrollEdge(Edge.Top) // 控制滚动条到顶部
     promptAction.showToast({ message: '提货成功' })
   }
 
@@ -206,12 +209,43 @@ struct TaskDetail {
     }
   }
 
+  // 底部按钮结构
+  @Builder
+  getBottomBtn() {
+    //已完成不显示任何按钮
+    Row() {
+      Button("延迟收货", { type: ButtonType.Capsule })
+        .backgroundColor($r('app.color.btn_gray'))
+        .fontColor($r('app.color.text_primary'))
+        .fontSize(16)
+        .height(50)
+        .width(125)
+
+      Button("提货", { type: ButtonType.Capsule })
+        .backgroundColor($r('app.color.primary'))
+        .fontColor($r('app.color.white'))
+        .height(50)
+        .flexGrow(1)
+        .margin({ left: 13 })
+        .enabled(this.getPickUpEnable())
+        .onClick(() => {
+          this.onPickUp()
+        })
+    }
+    .width('100%')
+    .padding({ left: 15, right: 15 })
+    .height(70)
+    .justifyContent(FlexAlign.SpaceBetween)
+    .alignItems(VerticalAlign.Center)
+    .backgroundColor($r('app.color.white'))
+  }
+
   build() {
     if (this.taskInfoData.id) {
       Column() {
         HmNavBar({ title: '任务详情' })
 
-        Scroll() {
+        Scroll(this.scroller) {
           Column() {
             // 基本信息
             HmToggleCard({ title: '基本信息' }) {
@@ -233,18 +267,9 @@ struct TaskDetail {
         }
         .layoutWeight(1)
 
-        //   底部操作按钮
-        Row() {
-          Button('延迟收货')
-          Button('提货')
-            .enabled(this.getPickUpEnable())
-            .onClick(() => {
-              this.onPickUp()
-            })
-        }
-        .width('100%')
-        .height(60)
-        .justifyContent(FlexAlign.SpaceBetween)
+
+        this.getBottomBtn()
+
 
       }
       .backgroundColor($r('app.color.background_page')).height('100%')
