@@ -17,7 +17,8 @@ export struct HmUpload {
   title: string = ""
   maxSelectNumber: number = 3
   @Prop imageList: ImageListModel[] = []
-  onImageListChange: (imageList: ImageListModel[]) => void = () => {}
+  onImageListChange: (imageList: ImageListModel[]) => void = () => {
+  }
 
   async onSelect() {
     //   上传图片:  ✅1. 打开相册-选择图片  3. 调用上传的API接口
@@ -44,8 +45,6 @@ export struct HmUpload {
     }
 
 
-
-
   }
 
   index: number = 0
@@ -68,13 +67,23 @@ export struct HmUpload {
 
         ForEach(this.imageList, (item: ImageListModel, index) => {
           GridItem() {
-            Image(item.url)
-              .width(95)
-              .height(95)
-              .onClick(() => {
-                this.index = index
-                this.controller.open()
-              })
+            Stack({ alignContent: Alignment.TopEnd }) {
+              Image(item.url)
+                .width(95)
+                .height(95)
+                .onClick(() => {
+                  this.index = index
+                  this.controller.open()
+                })
+              Image($r('app.media.ic_btn_delete'))
+                .width(30)
+                .height(30)
+                .onClick(() => {
+                  this.imageList.splice(index, 1)
+                  this.onImageListChange(this.imageList)
+                })
+            }
+
           }
         })
 
