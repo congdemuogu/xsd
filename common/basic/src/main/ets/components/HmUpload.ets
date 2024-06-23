@@ -1,12 +1,15 @@
 import { picker } from '@kit.CoreFileKit'
 import { HmPreview } from '.'
 import { ImageListModel } from '../models'
+import fs from '@ohos.file.fs'
+import { util } from '@kit.ArkTS'
 
 @Component
 export struct HmUpload {
   title: string = ""
   maxSelectNumber: number = 3
-  @State imageList: ImageListModel[] = []
+  // 1. 该@STate为@Prop
+  @Prop imageList: ImageListModel[] = []
 
   async onSelect() {
     //   上传图片:  ✅1. 打开相册-选择图片  2. 拷贝图片到沙箱(临时缓存目录) 3. 调用上传的API接口
@@ -21,6 +24,8 @@ export struct HmUpload {
       //   选择文件类型: 图片  视频
     })
 
+    AlertDialog.show({ message: JSON.stringify(result, null, 2), alignment: DialogAlignment.Center })
+
     if (result.photoUris.length > 0) {
       const list = result.photoUris.map(item => {
         return { url: item } as ImageListModel
@@ -28,6 +33,17 @@ export struct HmUpload {
 
       this.imageList.push(...list) // 拼接到旧数组中
     }
+
+    //   💥💥 考本文件到缓存目录
+
+    const saveDir = getContext().cacheDir // 缓存目录
+
+    // AlertDialog.show({ message: targetPath, alignment: DialogAlignment.Center })
+    this.imageList.forEach(item => {
+      const targetPath = saveDir + '/' + util.generateRandomUUID() + '.jpg'
+      const file = fs.openSync(item.url)
+      fs.copyFileSync(file.fd, targetPath) //  拷贝文件 : 1.原始文件的地址或者id,  2.拷贝到的地址或id
+    })
 
 
   }

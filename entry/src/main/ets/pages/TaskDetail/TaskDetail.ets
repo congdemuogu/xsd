@@ -155,11 +155,11 @@ struct TaskDetail {
     })
   }
 
+  /** 提货时上传组件 */
   @Builder
   getPickUpInfo() {
-    HmUpload({ title: '请拍照上传回单凭证' })
-    HmUpload({ title: '请拍照上传货物照片凭证' })
-
+    HmUpload({ title: '请拍照上传回单凭证', imageList: this.taskInfoData.cargoPickUpPictureList || [] })
+    HmUpload({ title: '请拍照上传货物照片凭证', imageList: this.taskInfoData.cargoPictureList || [] })
   }
 
   build() {
