@@ -17,3 +17,5 @@ export * from './HmUpload'
 export * from './HmPreview'
 
 export * from './HmLoading'
+
+export * from './HmCheckbox'

@@ -49,7 +49,6 @@ struct TaskDetail {
       this.loading.open()
       const result = await getTaskDetailAPI(params.id)
       this.taskDetailData = result
-      AlertDialog.show({ message: JSON.stringify(result, null, 2), alignment: DialogAlignment.Center })
       this.loading.close()
     }
   }
@@ -275,6 +274,14 @@ struct TaskDetail {
             .fontColor($r('app.color.white'))
             .height(50)
             .width('80%')
+            .onClick(() => {
+              router.pushUrl({
+                url: 'pages/CarRecord/CarRecord',
+                params: {
+                  id: this.taskDetailData.id
+                }
+              })
+            })
         }
         .width('100%').justifyContent(FlexAlign.Center)
       }
