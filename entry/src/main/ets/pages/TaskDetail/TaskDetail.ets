@@ -4,6 +4,7 @@ import { deliverAPI, getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
 import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
 import { TaskTypeEnum } from '../../models'
+import { uploadImageAPI } from '@hm/basic/src/main/ets/api/upload'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -32,6 +33,7 @@ class BaseBuilderClass {
   icon?: ResourceStr = ""
 }
 
+
 @Entry
 @Component
 struct TaskDetail {
@@ -47,6 +49,7 @@ struct TaskDetail {
       this.loading.open()
       const result = await getTaskDetailAPI(params.id)
       this.taskDetailData = result
+      AlertDialog.show({ message: JSON.stringify(result, null, 2), alignment: DialogAlignment.Center })
       this.loading.close()
     }
   }
@@ -322,10 +325,13 @@ struct TaskDetail {
 
   // 调用接口, 执行交货
   async onDeliver() {
+    // 先把图片上传到在线地址上
+    const certificatePictureList = await UploadFile(this.taskDetailData.certificatePictureList)
+    const deliverPictureList = await UploadFile(this.taskDetailData.deliverPictureList)
     this.loading.open()
     await deliverAPI({
-      certificatePictureList: this.taskDetailData.certificatePictureList,
-      deliverPictureList: this.taskDetailData.deliverPictureList,
+      certificatePictureList: certificatePictureList,
+      deliverPictureList: deliverPictureList,
       id: this.taskDetailData.id
     })
     this.loading.close()
