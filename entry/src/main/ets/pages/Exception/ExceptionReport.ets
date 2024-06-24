@@ -1,7 +1,12 @@
 import { CommonRouterParams, HmCard, HmCardItem, HmNavBar, HmSelectCard, HmUpload } from '@hm/basic'
 import dayjs from 'dayjs'
 import { ExceptionParamsTypeModel } from '../../models'
-import { router } from '@kit.ArkUI'
+import { promptAction, router } from '@kit.ArkUI'
+
+interface ExceptionItem {
+  name: string
+  index: number
+}
 
 @Entry
 @Component
@@ -19,15 +24,58 @@ struct ExceptionReport {
     }
   }
 
+  @State
+  exceptErrorList: string[] =
+    ["发动机启动困难", "不着车、漏油", "照明失灵", "有异常响动", "排烟异常、温度异常", "其他问题"]
+  @State selectedIndex: number = -1
+
   @Builder
   getCardContent() {
-    Text('哈哈哈')
+    ForEach(this.exceptErrorList, (item: string, index,) => {
+      this.getSingleItem(item, index, this.exceptErrorList.length - 1 !== index)
+    })
+  }
+
+  @Builder
+  getSingleItem(item: string, index: number, showBorder: boolean) {
+    Row() {
+      Text(item).fontSize(14).fontWeight(400).fontColor($r('app.color.text_primary'))
+      Row() {
+        Image($r(this.selectedIndex === index ? "app.media.ic_check_true" : "app.media.ic_check_false"))
+          .width(32)
+          .height(32)
+          .onClick(() => {
+            this.selectedIndex = index
+          })
+      }
+    }
+    .justifyContent(FlexAlign.SpaceBetween)
+    .alignItems(VerticalAlign.Center)
+    .border({
+      width: {
+        bottom: showBorder ? 1 : 0
+      },
+      color: $r('app.color.background_divider')
+    })
+    .width('100%')
+    .height(60)
   }
 
   typeDialog = new CustomDialogController({
     builder: HmSelectCard({
-      cardContent: this.getCardContent,
-      title: '请选择异常类型'
+      cardContent: () => {
+        this.getCardContent()
+      },
+      title: '请选择异常类型',
+      onConfirm: () => {
+        if (this.selectedIndex === -1) {
+          promptAction.showToast({ message: '请选择' })
+          return
+        }
+
+        this.exceptionForm.exceptionType = this.exceptErrorList[this.selectedIndex]
+        this.typeDialog.close()
+      }
     }),
     customStyle: true
   })
@@ -52,7 +100,7 @@ struct ExceptionReport {
             })
             HmCardItem({ leftText: '上报位置', rightText: '请选择' })
             HmCardItem({
-              leftText: '异常类型', rightText: '请选择', onRightClick: () => {
+              leftText: '异常类型', rightText: this.exceptionForm.exceptionType || '请选择', onRightClick: () => {
                 this.typeDialog.open()
               }
             })

@@ -1,3 +1,5 @@
+import text from '@ohos.graphics.text'
+
 @CustomDialog
 @Component
 export struct HmSelectCard {
