@@ -6,31 +6,23 @@ import { util } from '@kit.ArkTS'
 import { uploadImageAPI } from '../api/upload'
 import request from '@ohos.request'
 
-// 实现提货功能
-// 1. 子组件每次选中了图片, 把选中的图片, 传给父组件TaskDetail
-// 2. 根据图片的数量, 禁用提货按钮
-// 3. 点击事件中, 先调用上传接口
-// 4. 调用提货的接口
 
 @Component
 export struct HmUpload {
   title: string = ""
   maxSelectNumber: number = 3
   @Prop imageList: ImageListModel[] = []
+  @Prop canUpload: boolean = false
   onImageListChange: (imageList: ImageListModel[]) => void = () => {
   }
 
   async onSelect() {
-    //   上传图片:  ✅1. 打开相册-选择图片  3. 调用上传的API接口
 
     const photoPicker = new picker.PhotoViewPicker()
 
-    // 用户点击取消也会有返回值, 返回是对象 {photoUris: ['url地址', 'url地址2']  } 相册中图片的url地址
     const result = await photoPicker.select({
-      //   最大选择数量
       maxSelectNumber: this.maxSelectNumber - this.imageList.length,
       MIMEType: picker.PhotoViewMIMETypes.IMAGE_TYPE
-      //   选择文件类型: 图片  视频
     })
 
 
@@ -75,19 +67,23 @@ export struct HmUpload {
                   this.index = index
                   this.controller.open()
                 })
-              Image($r('app.media.ic_btn_delete'))
-                .width(30)
-                .height(30)
-                .onClick(() => {
-                  this.imageList.splice(index, 1)
-                  this.onImageListChange(this.imageList)
-                })
+
+              if (this.canUpload) {
+                Image($r('app.media.ic_btn_delete'))
+                  .width(30)
+                  .height(30)
+                  .onClick(() => {
+                    this.imageList.splice(index, 1)
+                    this.onImageListChange(this.imageList)
+                  })
+              }
+
             }
 
           }
         })
 
-        if (this.imageList.length < this.maxSelectNumber) {
+        if (this.imageList.length < this.maxSelectNumber && this.canUpload) {
           GridItem() {
             Row() {
               Image($r("app.media.ic_add_img")).width(30).height(30)
