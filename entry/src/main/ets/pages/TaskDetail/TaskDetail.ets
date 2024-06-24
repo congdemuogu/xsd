@@ -35,7 +35,7 @@ class BaseBuilderClass {
 @Entry
 @Component
 struct TaskDetail {
-  @State taskInfoData: TaskDetailInfoModel = {} as TaskDetailInfoModel
+  @State taskDetailData: TaskDetailInfoModel = {} as TaskDetailInfoModel
 
   async aboutToAppear() {
     await this.getTaskDetail()
@@ -46,7 +46,7 @@ struct TaskDetail {
     if (params.id) {
       this.loading.open()
       const result = await getTaskDetailAPI(params.id)
-      this.taskInfoData = result
+      this.taskDetailData = result
       this.loading.close()
     }
   }
@@ -74,12 +74,12 @@ struct TaskDetail {
       Column() {
         Row() {
           Text("起").baseTextIconStyle()
-          Text(this.taskInfoData.startAddress).baseTextStyle()
+          Text(this.taskDetailData.startAddress).baseTextStyle()
         }.margin({ top: 21 })
 
         Row() {
           Text("止").baseTextIconStyle().backgroundColor($r('app.color.primary'))
-          Text(this.taskInfoData.endAddress).baseTextStyle()
+          Text(this.taskDetailData.endAddress).baseTextStyle()
         }.margin({ top: 14.5 })
       }
       .alignItems(HorizontalAlign.Start)
@@ -100,24 +100,24 @@ struct TaskDetail {
 
     this.getBaseContentItem({
       title: '任务编号',
-      value: this.taskInfoData.transportTaskId
+      value: this.taskDetailData.transportTaskId
     })
     this.getBaseContentItem({
       title: '联系人',
-      value: this.taskInfoData.startHandoverName
+      value: this.taskDetailData.startHandoverName
     })
     this.getBaseContentItem({
       title: '联系电话',
-      value: this.taskInfoData.startHandoverPhone,
+      value: this.taskDetailData.startHandoverPhone,
       icon: $r('app.media.ic_phone')
     })
     this.getBaseContentItem({
       title: '提货时间',
-      value: this.taskInfoData.planDepartureTime
+      value: this.taskDetailData.planDepartureTime
     })
     this.getBaseContentItem({
       title: '预计送达时间',
-      value: this.taskInfoData.planArrivalTime
+      value: this.taskDetailData.planArrivalTime
     })
 
   }
@@ -126,12 +126,12 @@ struct TaskDetail {
   getDriverInfo() {
     this.getBaseContentItem({
       title: '车牌号',
-      value: this.taskInfoData.licensePlate
+      value: this.taskDetailData.licensePlate
     })
 
     this.getBaseContentItem({
       title: '司机姓名',
-      value: this.taskInfoData.driverName
+      value: this.taskDetailData.driverName
     })
   }
 
@@ -140,22 +140,22 @@ struct TaskDetail {
   getTransLineContent() {
     Row() {
       Column() {
-        Text(this.taskInfoData.startProvince)
+        Text(this.taskDetailData.startProvince)
           .fontSize(16)
           .fontColor($r('app.color.text_primary'))
           .lineHeight(22)
           .fontWeight(600)
-        Text(this.taskInfoData.startCity).fontSize(14).lineHeight(22)
+        Text(this.taskDetailData.startCity).fontSize(14).lineHeight(22)
       }.width(50)
 
       Image($r("app.media.ic_right_arrow")).width(36).height(16)
       Column() {
-        Text(this.taskInfoData.endProvince)
+        Text(this.taskDetailData.endProvince)
           .fontSize(16)
           .fontColor($r('app.color.text_primary'))
           .lineHeight(22)
           .fontWeight(600)
-        Text(this.taskInfoData.endCity).fontSize(14).lineHeight(22)
+        Text(this.taskDetailData.endCity).fontSize(14).lineHeight(22)
       }.width(50)
     }.justifyContent(FlexAlign.SpaceBetween).alignItems(VerticalAlign.Center).width('100%').padding({
       left: 60,
@@ -168,16 +168,16 @@ struct TaskDetail {
   getPickUpInfo() {
     HmUpload({
       title: '请拍照上传回单凭证',
-      imageList: this.taskInfoData.cargoPickUpPictureList || [],
+      imageList: this.taskDetailData.cargoPickUpPictureList || [],
       onImageListChange: (imageList) => {
-        this.taskInfoData.cargoPickUpPictureList = imageList
+        this.taskDetailData.cargoPickUpPictureList = imageList
       }
     })
     HmUpload({
       title: '请拍照上传货物照片凭证',
-      imageList: this.taskInfoData.cargoPictureList || [],
+      imageList: this.taskDetailData.cargoPictureList || [],
       onImageListChange: (imageList) => {
-        this.taskInfoData.cargoPictureList = imageList
+        this.taskDetailData.cargoPictureList = imageList
       }
 
     })
@@ -192,11 +192,11 @@ struct TaskDetail {
   async onPickUp() {
     this.loading.open()
     /** 上传后的图片地址数组 */
-    const cargoPickUpPictureList = await UploadFile(this.taskInfoData.cargoPickUpPictureList)
-    const cargoPictureList = await UploadFile(this.taskInfoData.cargoPictureList)
+    const cargoPickUpPictureList = await UploadFile(this.taskDetailData.cargoPickUpPictureList)
+    const cargoPictureList = await UploadFile(this.taskDetailData.cargoPictureList)
     // 调用提货的接口
     await pickUpAPI({
-      id: this.taskInfoData.id,
+      id: this.taskDetailData.id,
       cargoPickUpPictureList: cargoPickUpPictureList,
       cargoPictureList: cargoPictureList
     })
@@ -211,8 +211,8 @@ struct TaskDetail {
 
   getPickUpEnable() {
 
-    const cargoPickUpPictureList = this.taskInfoData.cargoPickUpPictureList || []
-    const cargoPictureList = this.taskInfoData.cargoPictureList || []
+    const cargoPickUpPictureList = this.taskDetailData.cargoPickUpPictureList || []
+    const cargoPictureList = this.taskDetailData.cargoPictureList || []
     if (cargoPickUpPictureList.length > 0 && cargoPictureList.length > 0) {
       return true
     } else {
@@ -224,7 +224,7 @@ struct TaskDetail {
   @Builder
   getBottomBtn() {
     Row() {
-      if (this.taskInfoData.status === TaskTypeEnum.Waiting) {
+      if (this.taskDetailData.status === TaskTypeEnum.Waiting) {
         Button("延迟收货", { type: ButtonType.Capsule })
           .backgroundColor($r('app.color.btn_gray'))
           .fontColor($r('app.color.text_primary'))
@@ -244,7 +244,7 @@ struct TaskDetail {
           })
 
         //   交货的逻辑
-      } else if (this.taskInfoData.status === TaskTypeEnum.Line) {
+      } else if (this.taskDetailData.status === TaskTypeEnum.Line) {
         Button("上报异常", { type: ButtonType.Capsule })
           .backgroundColor($r('app.color.btn_gray'))
           .fontColor($r('app.color.text_primary'))
@@ -273,7 +273,7 @@ struct TaskDetail {
   }
 
   build() {
-    if (this.taskInfoData.id) {
+    if (this.taskDetailData.id) {
       Column() {
         HmNavBar({ title: '任务详情' })
 
