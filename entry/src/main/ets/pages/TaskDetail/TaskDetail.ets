@@ -1,6 +1,6 @@
 import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard, HmUpload, UploadFile } from '@hm/basic'
 import { promptAction, router } from '@kit.ArkUI'
-import { getTaskDetailAPI, pickUpAPI } from '../../api/task'
+import { deliverAPI, getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { TaskDetailInfoModel } from '../../models/task_detail'
 import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
 import { TaskTypeEnum } from '../../models'
@@ -257,6 +257,10 @@ struct TaskDetail {
           .height(50)
           .flexGrow(1)
           .margin({ left: 13 })
+          .enabled(this.getDeliverEnable())
+          .onClick(() => {
+            this.onDeliver() // 调用交货接口
+          })
 
       }
     }
@@ -270,6 +274,49 @@ struct TaskDetail {
 
     //已完成不显示任何按钮
 
+  }
+
+  // 交货的逻辑
+  // 显示交货的上传组件
+  @Builder
+  getDeliverContent() {
+    HmUpload({
+      title: '请拍照上传交货回单凭证',
+      imageList: this.taskDetailData.certificatePictureList || [],
+      onImageListChange: (imageList) => {
+        this.taskDetailData.certificatePictureList = imageList
+      }
+    })
+    HmUpload({
+      title: '请拍照上传交货货品照片',
+      imageList: this.taskDetailData.deliverPictureList || [],
+      onImageListChange: (imageList) => {
+        this.taskDetailData.deliverPictureList = imageList
+      }
+
+    })
+  }
+
+  // 控制交货按钮是否可以被点击
+  getDeliverEnable() {
+    if (this.taskDetailData.deliverPictureList?.length > 0 && this.taskDetailData.certificatePictureList?.length > 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  // 调用接口, 执行交货
+  async onDeliver() {
+    this.loading.open()
+    await deliverAPI({
+      certificatePictureList: this.taskDetailData.certificatePictureList,
+      deliverPictureList: this.taskDetailData.deliverPictureList,
+      id: this.taskDetailData.id
+    })
+    this.loading.close()
+    promptAction.showToast({ message: '交货成功' })
+    this.getTaskDetail()
   }
 
   build() {
@@ -292,9 +339,19 @@ struct TaskDetail {
               this.getTransLineContent()
             }
 
-            HmToggleCard({ title: '提货信息' }) {
-              this.getPickUpInfo()
+            if (this.taskDetailData.status === TaskTypeEnum.Waiting) { // 提货状态显示提货信息
+              HmToggleCard({ title: '提货信息' }) {
+                this.getPickUpInfo()
+              }
             }
+
+            if (this.taskDetailData.status === TaskTypeEnum.Line) { // 交货状态显示交货信息
+              HmToggleCard({ title: '交货信息' }) {
+                this.getDeliverContent()
+              }
+            }
+
+
           }
         }
         .layoutWeight(1)
