@@ -1,5 +1,6 @@
 import { Request } from '@hm/basic'
 import {
+  CarRecordTypeModel,
   DeliverParamsTypeModel,
   PickUpParamsModel, TaskDetailInfoModel, TaskListDataModel, TaskListParamsModel } from '../models'
 
@@ -20,4 +21,9 @@ export function pickUpAPI(data: PickUpParamsModel) {
 
 export function deliverAPI(data: DeliverParamsTypeModel) {
   return Request.post('/driver/tasks/deliver', data)
+}
+
+/** 回车登记API函数 */
+export function carRecordAPI(data: CarRecordTypeModel) {
+  return Request.post('/driver/tasks/truckRegistration', data)
 }

@@ -1,8 +1,12 @@
 import { HmNavBar, HmCard, HmCardItem, CommonRouterParams, HmLoading, HmCheckBox } from '@hm/basic'
-import { getTaskDetailAPI } from '../../api/task'
-import { TaskDetailInfoModel } from '../../models'
-import { router } from '@kit.ArkUI'
+import { carRecordAPI, getTaskDetailAPI } from '../../api/task'
+import { CarRecordTypeModel, TaskDetailInfoModel } from '../../models'
+import { promptAction, router } from '@kit.ArkUI'
 import dayjs from 'dayjs'
+
+// 需求: 实现交车功能
+
+// 1. 调用接口
 
 
 @Entry
@@ -13,6 +17,8 @@ struct CarRecord {
     customStyle: true
   })
   @State taskDetailData: TaskDetailInfoModel = {} as TaskDetailInfoModel
+  /** 定义变量, 准备收集用户选中的数据 */
+  @State carRecord: CarRecordTypeModel = {} as CarRecordTypeModel
 
   async aboutToAppear() {
     await this.getTaskDetail()
@@ -28,6 +34,16 @@ struct CarRecord {
     }
   }
 
+  // 交车点击事件执行的逻辑
+  async onCarRecord() {
+    this.carRecord.id = this.taskDetailData.transportTaskId // id用的不是taskDetailData.id 而是transportTaskId
+    this.carRecord.startTime = this.taskDetailData.actualDepartureTime
+    await carRecordAPI(this.carRecord)
+    promptAction.showToast({ message: '交车成功' })
+    router.clear() // 清空路由跳转的历史记录
+    router.replaceUrl({ url: 'pages/Index/Index' })
+  }
+
   build() {
     Column() {
       HmNavBar({ title: '回车登记' })
@@ -40,19 +56,14 @@ struct CarRecord {
             })
             HmCardItem({
               leftText: '回车时间',
-              rightText: '请选择',
+              rightText: this.carRecord.endTime || '请选择',
               showBottomBorder: false,
               onRightClick: () => {
                 DatePickerDialog.show({
                   showTime: true,
                   useMilitaryTime: true, // 24小时制
                   onDateAccept: (value: Date) => {
-                    // value.getFullYear() + ( value.getMonth() + 1) + value.getDay()
-                    // dayjs 转换日期和时间
-                    // ohpm i 包名称
-                    const str = dayjs(value).format('YYYY-MM-DD HH:mm')
-                    AlertDialog.show({ message: str, alignment: DialogAlignment.Center })
-
+                    this.carRecord.endTime = dayjs(value).format('YYYY-MM-DD HH:mm')
                   }
                 })
               }
@@ -60,12 +71,26 @@ struct CarRecord {
           }
 
           HmCheckBox({
-            title: '车辆违章', value: true, checkChange: (value) => {
-              AlertDialog.show({ message: String(value), alignment: DialogAlignment.Center })
+            title: '车辆违章',
+            value: !!this.carRecord.isBreakRules,
+            checkChange: (value) => {
+              this.carRecord.isBreakRules = value
             }
           })
-          HmCheckBox({ title: '车辆故障', value: false })
-          HmCheckBox({ title: '车辆事故', value: true })
+          HmCheckBox({
+            title: '车辆故障',
+            value: !!this.carRecord.isFault,
+            checkChange: (value) => {
+              this.carRecord.isFault = value
+            }
+          })
+          HmCheckBox({
+            title: '车辆事故',
+            value: !!this.carRecord.isAccident,
+            checkChange: (value) => {
+              this.carRecord.isAccident = value
+            }
+          })
         }
         .height('100%')
       }
@@ -77,6 +102,10 @@ struct CarRecord {
           .backgroundColor($r('app.color.primary'))
           .width(207)
           .height(50)
+          .enabled(!!this.carRecord.endTime)
+          .onClick(() => {
+            this.onCarRecord()
+          })
       }
       .backgroundColor($r('app.color.white'))
       .height(70)
