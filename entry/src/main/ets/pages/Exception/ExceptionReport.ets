@@ -1,4 +1,4 @@
-import { CommonRouterParams, HmCard, HmCardItem, HmNavBar, HmUpload } from '@hm/basic'
+import { CommonRouterParams, HmCard, HmCardItem, HmNavBar, HmSelectCard, HmUpload } from '@hm/basic'
 import dayjs from 'dayjs'
 import { ExceptionParamsTypeModel } from '../../models'
 import { router } from '@kit.ArkUI'
@@ -19,6 +19,19 @@ struct ExceptionReport {
     }
   }
 
+  @Builder
+  getCardContent() {
+    Text('哈哈哈')
+  }
+
+  typeDialog = new CustomDialogController({
+    builder: HmSelectCard({
+      cardContent: this.getCardContent,
+      title: '请选择异常类型'
+    }),
+    customStyle: true
+  })
+
   build() {
     Column() {
       HmNavBar({ title: '上报异常' })
@@ -38,7 +51,11 @@ struct ExceptionReport {
               }
             })
             HmCardItem({ leftText: '上报位置', rightText: '请选择' })
-            HmCardItem({ leftText: '异常类型', rightText: '请选择' })
+            HmCardItem({
+              leftText: '异常类型', rightText: '请选择', onRightClick: () => {
+                this.typeDialog.open()
+              }
+            })
             HmCardItem({
               leftText: '异常描述',
               rightText: '',
