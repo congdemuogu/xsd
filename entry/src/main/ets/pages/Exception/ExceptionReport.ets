@@ -79,7 +79,12 @@ struct ExceptionReport {
   async onReport() {
     await exceptionReportAPI(this.exceptionForm)
     promptAction.showToast({ message: '上传成功' })
-    router.back()
+    router.back({
+      url: 'pages/TaskDetail/TaskDetail',
+      params: {
+        addExcept: true
+      }
+    })
   }
 
   typeDialog = new CustomDialogController({

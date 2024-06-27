@@ -1,7 +1,7 @@
-import { CommonRouterParams, HmNavBar, HmSkeleton, HmToggleCard, HmUpload, UploadFile } from '@hm/basic'
+import { CommonRouterParams, HmCard, HmNavBar, HmSkeleton, HmToggleCard, HmUpload, UploadFile } from '@hm/basic'
 import { promptAction, router } from '@kit.ArkUI'
 import { deliverAPI, getTaskDetailAPI, pickUpAPI } from '../../api/task'
-import { TaskDetailInfoModel } from '../../models/task_detail'
+import { ExceptionListModel, TaskDetailInfoModel } from '../../models/task_detail'
 import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
 import { TaskTypeEnum } from '../../models'
 import { uploadImageAPI } from '@hm/basic/src/main/ets/api/upload'
@@ -41,6 +41,13 @@ struct TaskDetail {
 
   async aboutToAppear() {
     await this.getTaskDetail()
+  }
+
+  async onPageShow() {
+    const params = router.getParams() as CommonRouterParams
+    if (params.addExcept) {
+      await this.getTaskDetail()
+    }
   }
 
   private async getTaskDetail() {
@@ -270,7 +277,8 @@ struct TaskDetail {
               params: {
                 id: this.taskDetailData.transportTaskId
               }
-            })})
+            })
+          })
         Button("交货", { type: ButtonType.Capsule })
           .backgroundColor($r('app.color.primary'))
           .fontColor($r('app.color.white'))
@@ -362,8 +370,38 @@ struct TaskDetail {
     this.getTaskDetail()
   }
 
-  // 需求: 业务流转 提货 => 交货 => 回车登记  =>  完成
-  // 需求: 回车登记时, 控制提货信息-交货信息-同时显示(只读)  底部按钮变成回车登记
+  // 获取异常信息
+  @Builder
+  getExceptionContent() {
+    ForEach(this.taskDetailData.exceptionList, (item: ExceptionListModel) => {
+      Row() {
+        Column() {
+          Row() {
+            Text("上报时间").fontSize(14).fontColor($r('app.color.text_primary'))
+            Text(item.exceptionTime).margin({ left: 20 }).fontColor($r('app.color.text_secondary'))
+          }.height(50).alignItems(VerticalAlign.Center).width('100%')
+
+          Row() {
+            Text("异常类型").fontSize(14).fontColor($r('app.color.text_primary'))
+            Text(item.exceptionType).margin({ left: 20 }).fontColor($r('app.color.text_secondary'))
+          }.height(50).alignItems(VerticalAlign.Center).width('100%')
+
+          Row() {
+            Text("处理结果").fontSize(14).fontColor($r('app.color.text_primary'))
+            Text("继续运输").margin({ left: 20 }).fontColor($r('app.color.text_secondary'))
+          }.height(50).alignItems(VerticalAlign.Center).width('100%')
+        }
+
+        // 跳转到详情
+        Image($r("app.media.ic_btn_more")).width(24).height(24)
+      }
+      .width('100%')
+      .padding({ left: 15, right: 15 })
+      .alignItems(VerticalAlign.Center)
+      .justifyContent(FlexAlign.SpaceBetween)
+
+    })
+  }
 
   build() {
     if (this.taskDetailData.id) {
@@ -399,6 +437,13 @@ struct TaskDetail {
               }
             }
 
+
+            //   显示异常信息
+            if (this.taskDetailData.status === TaskTypeEnum.Line) {
+              HmToggleCard({ title: '异常信息' }) {
+                this.getExceptionContent()
+              }
+            }
 
           }
         }
