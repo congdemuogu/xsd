@@ -5,6 +5,7 @@ import { ExceptionListModel, TaskDetailInfoModel } from '../../models/task_detai
 import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
 import { TaskTypeEnum } from '../../models'
 import { uploadImageAPI } from '@hm/basic/src/main/ets/api/upload'
+import common from '@ohos.app.ability.common'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -76,6 +77,16 @@ struct TaskDetail {
     })
   }
 
+  beginNav() {
+    const context = getContext() as common.UIAbilityContext
+
+    context.startAbility({
+      action: 'ohos.want.action.viewData',
+      entities: ['entity.system.browsable'], // 拉起窗口进入到鸿蒙手机的自带浏览器app
+      uri: encodeURI('https://gaode.com/search?query=' + this.taskDetailData.endAddress) // 告诉浏览器要访问的地址
+    }) // 拉起一个新的窗口
+  }
+
   // 获取基础信息
   @Builder
   getBaseInfo() {
@@ -95,13 +106,21 @@ struct TaskDetail {
       .layoutWeight(1)
       .margin({ right: 20 })
 
-      Column() {
-        Image($r("app.media.ic_navigation")).width(22).height(22)
-        Text("开始导航").fontSize(14).margin({ top: 10, bottom: 10 })
-      }.justifyContent(FlexAlign.SpaceBetween)
-      .margin({
-        top: 20
-      })
+
+      if (this.taskDetailData.status === TaskTypeEnum.Line) {
+        Column() {
+          Image($r("app.media.ic_navigation")).width(22).height(22)
+          Text("开始导航").fontSize(14).margin({ top: 10, bottom: 10 })
+        }
+        .justifyContent(FlexAlign.SpaceBetween)
+        .margin({
+          top: 20
+        })
+        .onClick(() => {
+          this.beginNav()
+        })
+      }
+
 
     }.justifyContent(FlexAlign.SpaceBetween).alignItems(VerticalAlign.Center).width('100%')
 
