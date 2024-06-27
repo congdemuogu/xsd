@@ -6,7 +6,7 @@ import HmList from '@hm/basic/src/main/ets/components/HmList'
 @Preview
 @Component
 struct TaskList {
-  params: TaskListParamsModel = {
+  queryParams: TaskListParamsModel = {
     page: 1, // 表示查询第几页的数据 ++
     pageSize: 10, // 表示每页查几条数据
     status: TaskTypeEnum.Waiting,
@@ -15,7 +15,7 @@ struct TaskList {
   @State finished: boolean = false // 服务器上没有更多数据了
   onLoad = async (isRefresh?: boolean) => {
 
-    const data = await getTaskListAPI(this.params) // page: 1   2
+    const data = await getTaskListAPI(this.queryParams) // page: 1   2
 
 
     const items = data.items || []
@@ -25,14 +25,14 @@ struct TaskList {
     } else {
       this.taskList.push(...items) // 无限滚动 要拼接数据
     }
-    this.params.page++ // 2 3
+    this.queryParams.page++ // 2 3
 
-    if (this.params.page > data.pages) {
+    if (this.queryParams.page > data.pages) {
       this.finished = true // 服务器上没有更多数据了
     }
   } // 防抖或者节流
   onRefresh = async () => {
-    this.params.page = 1 // 重置数据
+    this.queryParams.page = 1 // 重置数据
     this.finished = false // 重置数据
     await this.onLoad(true) // 再次发请求, 覆盖旧数据
   }

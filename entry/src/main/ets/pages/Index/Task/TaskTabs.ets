@@ -47,7 +47,7 @@ export struct TaskTabs {
             if (item.name === 'waiting') {
               TaskList() // 默认待提货
             } else if (item.name === 'line') {
-              TaskList({ params: { page: 1, pageSize: 10, status: TaskTypeEnum.Line } as TaskListParamsModel })
+              TaskList({ queryParams: { page: 1, pageSize: 10, status: TaskTypeEnum.Line } as TaskListParamsModel })
             } else {
               Text('已完成')
             }
