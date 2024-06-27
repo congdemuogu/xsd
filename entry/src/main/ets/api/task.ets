@@ -3,6 +3,7 @@ import {
   CarRecordTypeModel,
   DelayParamsTypeModel,
   DeliverParamsTypeModel,
+  ExceptionParamsTypeModel,
   PickUpParamsModel,
   TaskDetailInfoModel,
   TaskListDataModel,
@@ -35,4 +36,9 @@ export function carRecordAPI(data: CarRecordTypeModel) {
 
 export function delayAPI(data: DelayParamsTypeModel) {
   return Request.put('/driver/tasks/delay', data)
+}
+
+/** 上报异常的API函数 */
+export const exceptionReportAPI = (data: ExceptionParamsTypeModel) => {
+  return Request.post("/driver/tasks/reportException", data)
 }

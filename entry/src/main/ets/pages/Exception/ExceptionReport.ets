@@ -2,6 +2,7 @@ import { CommonRouterParams, HmCard, HmCardItem, HmNavBar, HmSelectCard, HmUploa
 import dayjs from 'dayjs'
 import { ExceptionParamsTypeModel } from '../../models'
 import { promptAction, router } from '@kit.ArkUI'
+import { exceptionReportAPI } from '../../api/task'
 
 interface ExceptionItem {
   name: string
@@ -17,10 +18,14 @@ struct ExceptionReport {
   } as ExceptionParamsTypeModel
   @State maxSizeNumber: number = 50
 
-  aboutToAppear() {
+  onPageShow() {
     const params = router.getParams() as CommonRouterParams
     if (params.id) {
       this.exceptionForm.transportTaskId = params.id
+    }
+
+    if (params.location) {
+      this.exceptionForm.exceptionPlace = params.location
     }
   }
 
@@ -59,6 +64,22 @@ struct ExceptionReport {
     })
     .width('100%')
     .height(60)
+  }
+
+  // 当表单收集到所有的数据, 返回true
+  getBtnEnable() {
+    return !!(this.exceptionForm.exceptionDescribe
+      && this.exceptionForm.exceptionImagesList?.length
+      && this.exceptionForm.exceptionPlace
+      && this.exceptionForm.exceptionTime
+      && this.exceptionForm.exceptionType
+      && this.exceptionForm.transportTaskId)
+  }
+
+  async onReport() {
+    await exceptionReportAPI(this.exceptionForm)
+    promptAction.showToast({ message: '上传成功' })
+    router.back()
   }
 
   typeDialog = new CustomDialogController({
@@ -100,7 +121,7 @@ struct ExceptionReport {
             })
             HmCardItem({
               leftText: '上报位置',
-              rightText: '请选择',
+              rightText: this.exceptionForm.exceptionPlace || '请选择',
               onRightClick: () => {
                 router.pushUrl({
                   url: 'pages/SelectLocation/SelectLocation'
@@ -144,7 +165,8 @@ struct ExceptionReport {
           HmCard() {
             HmUpload({
               title: '上传图片(最多6张)',
-              imageList: [],
+              maxSelectNumber: 6,
+              imageList: this.exceptionForm.exceptionImagesList || [],
               canUpload: true,
               onImageListChange: (list) => {
                 this.exceptionForm.exceptionImagesList = list
@@ -160,7 +182,14 @@ struct ExceptionReport {
 
 
       Row() {
-        Button("提交").height(50).width(207).backgroundColor($r('app.color.primary_disabled'))
+        Button("提交")
+          .height(50)
+          .width(207)
+          .backgroundColor($r('app.color.primary'))
+          .enabled(this.getBtnEnable())
+          .onClick(() => {
+            this.onReport()
+          })
       }
       .position({
         y: '100%'
