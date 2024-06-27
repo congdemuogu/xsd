@@ -98,7 +98,15 @@ struct ExceptionReport {
                 })
               }
             })
-            HmCardItem({ leftText: '上报位置', rightText: '请选择' })
+            HmCardItem({
+              leftText: '上报位置',
+              rightText: '请选择',
+              onRightClick: () => {
+                router.pushUrl({
+                  url: 'pages/SelectLocation/SelectLocation'
+                })
+              }
+            })
             HmCardItem({
               leftText: '异常类型', rightText: this.exceptionForm.exceptionType || '请选择', onRightClick: () => {
                 this.typeDialog.open()
