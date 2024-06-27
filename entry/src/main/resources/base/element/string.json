@@ -11,6 +11,10 @@
     {
       "name": "EntryAbility_label",
       "value": "label"
+    },
+    {
+      "name": "Location_reason",
+      "value": "申请位置"
     }
   ]
 }

@@ -1,7 +1,8 @@
-import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { abilityAccessCtrl, AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { AdvertClass, defaultAd, TOKEN_KEY, UserSettingClass } from '@hm/basic';
+import { accessibility } from '@kit.AccessibilityKit';
 
 // 需求: 根据用户有无token, 自动加载首页或者登录页面
 // 1. 新建登录页面
@@ -12,8 +13,17 @@ import { AdvertClass, defaultAd, TOKEN_KEY, UserSettingClass } from '@hm/basic';
 
 // 面向对象-三大特性: 封装\继承\多态
 export default class EntryAbility extends UIAbility {
-  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+  async onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+
+    //   向用户主动申请权限
+    const mgr = abilityAccessCtrl.createAtManager()
+    await mgr.requestPermissionsFromUser(this.context, [
+      "ohos.permission.LOCATION",
+      "ohos.permission.APPROXIMATELY_LOCATION"
+    ])
+
+
   }
 
   onDestroy(): void {

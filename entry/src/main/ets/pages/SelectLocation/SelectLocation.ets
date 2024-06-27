@@ -1,9 +1,21 @@
 import { HmNavBar, HmCard, HmCardItem } from '@hm/basic'
 import { MapComponent } from '@hms.core.map.MapComponent'
+import { geoLocationManager } from '@kit.LocationKit'
 
 @Entry
 @Component
 struct SelectLocation {
+  // 需求: 实现获取用户的地理位置
+
+  async aboutToAppear() {
+    try {
+      const res = await geoLocationManager.getCurrentLocation()
+      AlertDialog.show({ message: JSON.stringify(res, null, 2), alignment: DialogAlignment.Center })
+    } catch (err) {
+      AlertDialog.show({ message: JSON.stringify(err, null, 2), alignment: DialogAlignment.Center })
+    }
+  }
+
   build() {
     Column() {
       HmNavBar({ title: '当前位置' })
@@ -20,7 +32,7 @@ struct SelectLocation {
             }
           },
           mapCallback: () => {
-            
+
           }
         })
           .width('100%')

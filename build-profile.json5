@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storePassword": "0000001B7B031DF14BB8B6C42FFB1F2B811E4572BEE60BA5FA171D5801D5AE7539F745D2FFFD8E5793584E",
+          "certpath": "D:/work/地图证书/小时达.cer",
+          "keyAlias": "xsd",
+          "keyPassword": "0000001B6F0264A42542397E99FC0C2A793F173C35AD29FFFF7A269E6A3A59E41512F93CF7575D03159214",
+          "profile": "D:/work/地图证书/小时达03Debug.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "D:/work/地图证书/xsd.p12"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",
