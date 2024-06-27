@@ -394,6 +394,14 @@ struct TaskDetail {
 
         // 跳转到详情
         Image($r("app.media.ic_btn_more")).width(24).height(24)
+          .onClick(() => {
+            router.pushUrl({
+              url: 'pages/Exception/ExceptionDetail',
+              params: {
+                formData: item
+              }
+            })
+          })
       }
       .width('100%')
       .padding({ left: 15, right: 15 })

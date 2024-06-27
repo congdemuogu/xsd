@@ -13,6 +13,7 @@ export interface CommonRouterParams {
   oldTime?: string
   location?: string
   addExcept?: boolean
+  formData?: object
 }
 
 // 可以复用的上传图片的数据模型 和 接口返回的图片数据的模型
