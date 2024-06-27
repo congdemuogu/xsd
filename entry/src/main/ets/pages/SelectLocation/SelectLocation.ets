@@ -2,6 +2,14 @@ import { HmNavBar, HmCard, HmCardItem } from '@hm/basic'
 import { MapComponent } from '@hms.core.map.MapComponent'
 import { geoLocationManager } from '@kit.LocationKit'
 import map from '@hms.core.map.map'
+import { site } from '@kit.MapKit'
+
+
+/** 获取的附近地标的数据类型 */
+interface SiteClass {
+  name: string
+  distance: number
+}
 
 @Entry
 @Component
@@ -18,6 +26,7 @@ struct SelectLocation {
   // }
 
   mapController: map.MapComponentController = new map.MapComponentController()
+  @State list: SiteClass[] = []
 
   async getUserLocation() {
     // 先获取用户的地理位置坐标
@@ -41,6 +50,19 @@ struct SelectLocation {
         content: '您的位置'
       }]
     })
+
+    const res = await site.nearbySearch({
+      pageIndex: 1,
+      pageSize: 4,
+      location: {
+        longitude: rightLocation.longitude,
+        latitude: rightLocation.latitude
+      },
+      radius: 50 // 搜索的距离范围
+    })
+
+    this.list = res.sites as SiteClass[]
+
   }
 
   build() {
@@ -71,10 +93,10 @@ struct SelectLocation {
           .height('100%')
         Column() {
           HmCard() {
-            HmCardItem({ leftText: '回龙观街道', rightText: '100m以内' })
-            HmCardItem({ leftText: '金燕龙科研楼', rightText: '100m以内' })
-            HmCardItem({ leftText: '春野画室', rightText: '100m以内' })
-            HmCardItem({ leftText: '光滑时代(金艳龙科研楼店)', rightText: '100m以内' })
+            ForEach(this.list, (item: SiteClass) => {
+              HmCardItem({ leftText: item.name, rightText: `${item.distance}m以内` })
+            })
+
           }
         }
         .padding({
