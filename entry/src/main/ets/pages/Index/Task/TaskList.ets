@@ -53,6 +53,8 @@ struct TaskList {
     autoCancel: false,
     alignment: DialogAlignment.Center
   })
+  // 表示是否可以重置
+  @State reset: boolean = false
 
   /** 搜索表单的结构 */
   @Builder
@@ -99,12 +101,21 @@ struct TaskList {
             })
           })
 
-        Button("筛选")
+        Button(this.reset ? '重置' : "筛选")
           .backgroundColor($r('app.color.primary'))
           .height(32)
           .width(60)
           .enabled(!!(this.queryParams.startTime && this.queryParams.endTime))
           .onClick(async () => {
+
+            if (this.reset) {
+              //   清空表单选中的日期
+              this.queryParams.startTime = ''
+              this.queryParams.endTime = ''
+            }
+
+            this.reset = !this.reset
+
             this.loading.open()
             await this.onRefresh()
             this.loading.close()
