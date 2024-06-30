@@ -1,4 +1,4 @@
-import { CommonRouterParams, HmCard, HmCardItem, HmNavBar, HmSelectCard, HmUpload } from '@hm/basic'
+import { CommonRouterParams, HmCard, HmCardItem, HmNavBar, HmSelectCard, HmUpload, UploadFile } from '@hm/basic'
 import dayjs from 'dayjs'
 import { ExceptionParamsTypeModel } from '../../models'
 import { promptAction, router } from '@kit.ArkUI'
@@ -77,6 +77,10 @@ struct ExceptionReport {
   }
 
   async onReport() {
+    // 上传后的在线图片地址
+    const list = await UploadFile(this.exceptionForm.exceptionImagesList!)
+    this.exceptionForm.exceptionImagesList = list
+    // 调用上报的接口
     await exceptionReportAPI(this.exceptionForm)
     promptAction.showToast({ message: '上传成功' })
     router.back({
