@@ -1,4 +1,13 @@
-import { CommonRouterParams, HmCard, HmNavBar, HmSkeleton, HmToggleCard, HmUpload, UploadFile } from '@hm/basic'
+import {
+  CommonRouterParams,
+  HmCard,
+  HmNavBar,
+  HmSkeleton,
+  HmToggleCard,
+  HmUpload,
+  ImageListModel,
+  UploadFile
+} from '@hm/basic'
 import { promptAction, router } from '@kit.ArkUI'
 import { deliverAPI, getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { ExceptionListModel, TaskDetailInfoModel } from '../../models/task_detail'
@@ -387,20 +396,60 @@ struct TaskDetail {
   // 调用接口, 执行交货
   async onDeliver() {
 
+
+    this.loading.open()
+
+
     // 线程模块
     // 要带上文件的后缀
-    const uploadWorker = new worker.ThreadWorker("entry/ets/workers/UploadWorker.ets") // 创建一个子线程
+    const uploadWorker1 = new worker.ThreadWorker("entry/ets/workers/UploadWorker.ets") // 创建一个子线程
+    const uploadWorker2 = new worker.ThreadWorker("entry/ets/workers/UploadWorker.ets") // 创建一个子线程
+
+    let certificatePictureList: ImageListModel[] = []
+    let deliverPictureList: ImageListModel[] = []
+
+    const checkFile = async () => {
+      if (!certificatePictureList.length || !deliverPictureList.length) {
+        return
+      }
+
+
+      //
+      const res = await Promise.all([UploadFile(certificatePictureList), UploadFile(deliverPictureList)])
+      await deliverAPI({
+        certificatePictureList: res[0],
+        deliverPictureList: res[1],
+        id: this.taskDetailData.id
+      })
+      this.loading.close()
+      promptAction.showToast({ message: '交货成功' })
+      this.getTaskDetail()
+
+    }
 
     // 让主线程和子线程发消息
-    uploadWorker.postMessage({
+    uploadWorker1.postMessage({
       // 💥不允许传非可序列化的数据, 带装饰器的数据, 不能传给子线程
       files: [...this.taskDetailData.certificatePictureList],
       filePath: getContext().filesDir
     })
 
-    uploadWorker.onmessage = (e) => {
-      AlertDialog.show({ message: JSON.stringify(e.data), alignment: DialogAlignment.Center })
+    uploadWorker2.postMessage({
+      // 💥不允许传非可序列化的数据, 带装饰器的数据, 不能传给子线程
+      files: [...this.taskDetailData.deliverPictureList],
+      filePath: getContext().filesDir
+    })
 
+    // 线程1完成的压缩结果
+    uploadWorker1.onmessage = (e) => {
+      certificatePictureList = e.data.files
+      checkFile()
+    }
+
+    // 线程2完成的压缩结果
+    uploadWorker2.onmessage = (e) => {
+      deliverPictureList = e.data.files
+      checkFile()
     }
 
 
