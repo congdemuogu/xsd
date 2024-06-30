@@ -6,6 +6,7 @@ import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
 import { TaskTypeEnum } from '../../models'
 import { uploadImageAPI } from '@hm/basic/src/main/ets/api/upload'
 import common from '@ohos.app.ability.common'
+import call from '@ohos.telephony.call'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -32,6 +33,8 @@ class BaseBuilderClass {
   title: string = ""
   value: string = ""
   icon?: ResourceStr = ""
+  iconClick?: () => void = () => {
+  }
 }
 
 
@@ -70,6 +73,9 @@ struct TaskDetail {
         Text(item.value).fontSize(14).fontColor($r('app.color.text_secondary'))
         if (item.icon) {
           Image(item.icon).width(24).height(24)
+            .onClick(() => {
+              item.iconClick && item.iconClick()
+            })
         }
       }
     }.justifyContent(FlexAlign.SpaceBetween).width('100%').margin({
@@ -137,7 +143,11 @@ struct TaskDetail {
     this.getBaseContentItem({
       title: '联系电话',
       value: this.taskDetailData.startHandoverPhone,
-      icon: $r('app.media.ic_phone')
+      icon: $r('app.media.ic_phone'),
+      iconClick: () => {
+        call.makeCall(this.taskDetailData.startHandoverPhone)
+      }
+
     })
     this.getBaseContentItem({
       title: '提货时间',
