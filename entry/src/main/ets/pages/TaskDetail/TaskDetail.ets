@@ -7,6 +7,7 @@ import { TaskTypeEnum } from '../../models'
 import { uploadImageAPI } from '@hm/basic/src/main/ets/api/upload'
 import common from '@ohos.app.ability.common'
 import call from '@ohos.telephony.call'
+import { worker } from '@kit.ArkTS'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -385,18 +386,30 @@ struct TaskDetail {
 
   // 调用接口, 执行交货
   async onDeliver() {
-    // 先把图片上传到在线地址上
-    const certificatePictureList = await UploadFile(this.taskDetailData.certificatePictureList)
-    const deliverPictureList = await UploadFile(this.taskDetailData.deliverPictureList)
-    this.loading.open()
-    await deliverAPI({
-      certificatePictureList: certificatePictureList,
-      deliverPictureList: deliverPictureList,
-      id: this.taskDetailData.id
+
+    // 线程模块
+    // 要带上文件的后缀
+    const uploadWorker = new worker.ThreadWorker("entry/ets/workers/UploadWorker.ets") // 创建一个子线程
+
+    // 让主线程和子线程发消息
+    uploadWorker.postMessage({
+      // 💥不允许传非可序列化的数据, 带装饰器的数据, 不能传给子线程
+      files: [...this.taskDetailData.certificatePictureList]
     })
-    this.loading.close()
-    promptAction.showToast({ message: '交货成功' })
-    this.getTaskDetail()
+
+
+    // // 先把图片上传到在线地址上
+    // const certificatePictureList = await UploadFile(this.taskDetailData.certificatePictureList)
+    // const deliverPictureList = await UploadFile(this.taskDetailData.deliverPictureList)
+    // this.loading.open()
+    // await deliverAPI({
+    //   certificatePictureList: certificatePictureList,
+    //   deliverPictureList: deliverPictureList,
+    //   id: this.taskDetailData.id
+    // })
+    // this.loading.close()
+    // promptAction.showToast({ message: '交货成功' })
+    // this.getTaskDetail()
   }
 
   // 获取异常信息
