@@ -394,8 +394,14 @@ struct TaskDetail {
     // 让主线程和子线程发消息
     uploadWorker.postMessage({
       // 💥不允许传非可序列化的数据, 带装饰器的数据, 不能传给子线程
-      files: [...this.taskDetailData.certificatePictureList]
+      files: [...this.taskDetailData.certificatePictureList],
+      filePath: getContext().filesDir
     })
+
+    uploadWorker.onmessage = (e) => {
+      AlertDialog.show({ message: JSON.stringify(e.data), alignment: DialogAlignment.Center })
+
+    }
 
 
     // // 先把图片上传到在线地址上
