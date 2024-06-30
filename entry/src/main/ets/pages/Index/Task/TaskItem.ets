@@ -39,7 +39,7 @@ struct TaskItemCard {
   build() {
     Column() {
       Row() {
-        Text(`任务编号：${this.taskItem.id}`)
+        Text(`任务编号：${this.taskItem.transportTaskId}`)
           .fontSize(16)
           .fontColor($r("app.color.text_primary"))
           .fontWeight(500)

@@ -62,6 +62,13 @@ struct TaskList {
     Column() {
       Row() {
         Search({ placeholder: '请输入任务编号' }).backgroundColor($r('app.color.background_page')).height(32)
+          .onSubmit((value) => {
+            this.loading.open()
+            this.queryParams.transportTaskId = value
+            this.onRefresh()
+            this.loading.close()
+
+          })
       }
       .justifyContent(FlexAlign.Center)
       .padding({ left: 15, right: 15, bottom: 5 })
