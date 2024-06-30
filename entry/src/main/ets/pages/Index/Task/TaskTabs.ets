@@ -49,7 +49,7 @@ export struct TaskTabs {
             } else if (item.name === 'line') {
               TaskList({ queryParams: { page: 1, pageSize: 10, status: TaskTypeEnum.Line } as TaskListParamsModel })
             } else {
-              Text('已完成')
+              TaskList({ queryParams: { page: 1, pageSize: 10, status: TaskTypeEnum.Finish } as TaskListParamsModel })
             }
           }
           .tabBar(item.title)

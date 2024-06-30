@@ -2,10 +2,13 @@ import { getTaskListAPI } from '../../../api/task'
 import { TaskInfoItemModel, TaskListParamsModel, TaskTypeEnum } from '../../../models'
 import TaskItemCard from './TaskItem'
 import HmList from '@hm/basic/src/main/ets/components/HmList'
+import dayjs from 'dayjs'
+import { HmLoading } from '@hm/basic'
 
 @Preview
 @Component
 struct TaskList {
+  @Prop
   queryParams: TaskListParamsModel = {
     page: 1, // 表示查询第几页的数据 ++
     pageSize: 10, // 表示每页查几条数据
@@ -42,17 +45,96 @@ struct TaskList {
     TaskItemCard({ taskItem: item as TaskInfoItemModel })
   }
 
+  loading: CustomDialogController = new CustomDialogController({
+    builder: HmLoading({
+      title: '搜索查询中'
+    }),
+    customStyle: true,
+    autoCancel: false,
+    alignment: DialogAlignment.Center
+  })
+
+  /** 搜索表单的结构 */
+  @Builder
+  getSearchForm() {
+    Column() {
+      Row() {
+        Search({ placeholder: '请输入任务编号' }).backgroundColor($r('app.color.background_page')).height(32)
+      }
+      .justifyContent(FlexAlign.Center)
+      .padding({ left: 15, right: 15, bottom: 5 })
+
+      Row() {
+        // 完成搜索页需要测试点击之后键盘和弹层同时弹出的情况
+        Button(this.queryParams.startTime || '开始时间')
+          .fontSize(14)
+          .width(106)
+          .height(32)
+          .padding({ left: 0, right: 0 })
+          .fontColor('#999')
+          .backgroundColor($r('app.color.background_page'))
+          .onClick(() => {
+            DatePickerDialog.show({
+              selected: new Date(),
+              onDateAccept: (value) => {
+                this.queryParams.startTime = dayjs(value).format('YYYY-MM-DD')
+              }
+            })
+          })
+
+        Text("至")
+        Button(this.queryParams.endTime || '结束时间')
+          .fontSize(14)
+          .width(110)
+          .height(32)
+          .padding({ left: 0, right: 0 })
+          .fontColor('#999')
+          .backgroundColor($r('app.color.background_page'))
+          .onClick(() => {
+            DatePickerDialog.show({
+              selected: new Date(),
+              onDateAccept: (value) => {
+                this.queryParams.endTime = dayjs(value).format('YYYY-MM-DD')
+              }
+            })
+          })
+
+        Button("筛选")
+          .backgroundColor($r('app.color.primary'))
+          .height(32)
+          .width(60)
+          .enabled(!!(this.queryParams.startTime && this.queryParams.endTime))
+          .onClick(async () => {
+            this.loading.open()
+            await this.onRefresh()
+            this.loading.close()
+          })
+      }.width('100%').alignItems(VerticalAlign.Center).justifyContent(FlexAlign.SpaceAround)
+    }
+    .backgroundColor($r('app.color.white'))
+    .padding(15)
+    .justifyContent(FlexAlign.Center)
+    .width('100%')
+  }
+
   build() {
-    HmList({
-      finished: this.finished,
-      dataSource: this.taskList,
-      onLoad: this.onLoad,
-      onRefresh: this.onRefresh,
-      finishedText: '我是有底线的',
-      loadingText: '疯狂加载中',
-      renderItem: this.renderItem
-    })
-      .height('100%')
+    Column() {
+      if (this.queryParams.status === TaskTypeEnum.Finish) {
+        this.getSearchForm()
+      }
+
+      HmList({
+        finished: this.finished,
+        dataSource: this.taskList,
+        onLoad: this.onLoad,
+        onRefresh: this.onRefresh,
+        finishedText: '我是有底线的',
+        loadingText: '疯狂加载中',
+        renderItem: this.renderItem
+      })
+        .layoutWeight(1)
+    }
+    .height('100%')
 
   }
 }

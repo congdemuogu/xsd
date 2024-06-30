@@ -91,19 +91,21 @@ struct TaskItemCard {
             .margin({ top: 4 })
         }.alignItems(HorizontalAlign.Start)
 
-        Button(this.getBtnText(), { type: ButtonType.Capsule })
-          .backgroundColor($r('app.color.primary'))
-          .fontColor($r("app.color.white"))
-          .fontSize(14)
-          .height(32)
-          .enabled(this.getBtnEnable())// 可提货
-          .onClick(() => {
-            router.pushUrl({
-              url: 'pages/TaskDetail/TaskDetail', params: {
-                id: this.taskItem.id
-              }
+        if (this.taskItem.status !== TaskTypeEnum.Finish) {
+          Button(this.getBtnText(), { type: ButtonType.Capsule })
+            .backgroundColor($r('app.color.primary'))
+            .fontColor($r("app.color.white"))
+            .fontSize(14)
+            .height(32)
+            .enabled(this.getBtnEnable())// 可提货
+            .onClick(() => {
+              router.pushUrl({
+                url: 'pages/TaskDetail/TaskDetail', params: {
+                  id: this.taskItem.id
+                }
+              })
             })
-          })
+        }
 
       }.justifyContent(FlexAlign.SpaceBetween).width('100%')
     }
@@ -116,6 +118,13 @@ struct TaskItemCard {
     })
     .borderRadius(10)
     .backgroundColor($r('app.color.white'))
+    .onClick(() => {
+      router.pushUrl({
+        url: 'pages/TaskDetail/TaskDetail', params: {
+          id: this.taskItem.id
+        }
+      })
+    })
 
   }
 }
