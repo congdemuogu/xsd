@@ -29,6 +29,26 @@
           "abilities": ["EntryAbility"],
           "when": "always"
         }
+      },
+      {
+        "name": "ohos.permission.LOCATION_IN_BACKGROUND",
+        "reason": "$string:Location_reason",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when": "always"
+        }
+      },
+      {
+        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
+        "reason": "$string:Location_reason",
+        "usedScene": {
+          "abilities": [
+            "Harmony_location_demoAbility"
+          ],
+          "when": "always"
+        }
       }
     ],
     "abilities": [

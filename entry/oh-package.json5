@@ -6,8 +6,8 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "@hm/basic": "file:../common/basic"
-    // 引入har包
+    "@hm/basic": "file:../common/basic",
+
   }
 }
 

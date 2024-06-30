@@ -4,6 +4,14 @@ import { geoLocationManager } from '@kit.LocationKit'
 import map from '@hms.core.map.map'
 import { site } from '@kit.MapKit'
 import { router } from '@kit.ArkUI'
+import { AMapPrivacyShowStatus, AMapPrivacyInfoStatus, AMapPrivacyAgreeStatus } from '@amap/amap_lbs_common'
+import {
+  AMapLocationManagerImpl,
+  AMapLocationOption,
+  AMapLocationReGeocodeLanguage,
+  AMapLocationType,
+  IAMapLocationListener
+} from '@amap/amap_lbs_location'
 
 
 /** 获取的附近地标的数据类型 */
@@ -22,6 +30,42 @@ struct SelectLocation {
   @State list: SiteClass[] = []
 
   async getUserLocation() {
+
+    AMapLocationManagerImpl.setApiKey("49cffd06c520ad01045f1423b7397496");
+
+    let options: AMapLocationOption = {
+      priority: geoLocationManager.LocationRequestPriority.FIRST_FIX, //定位优先配置选项
+      scenario: geoLocationManager.LocationRequestScenario.UNSET, //定位场景设置
+      maxAccuracy: 0, //定位精度 单位：米
+      singleLocationTimeout: 3000, //指定单次定位超时时间
+      locatingWithReGeocode: false, //定位是否返回逆地理信息
+      reGeocodeLanguage: AMapLocationReGeocodeLanguage.Chinese, //逆地址语言类型
+      isOffset: false //是否加偏
+    }
+
+    let listener: IAMapLocationListener = {
+      onLocationChanged: (location) => {
+        // todo something
+        AlertDialog.show({ message: JSON.stringify(location, null, 2), alignment: DialogAlignment.Center })
+      }, onLocationError: (error) => {
+        // todo something
+      }
+    };
+
+
+    //初始化隐私政策
+    AMapLocationManagerImpl.updatePrivacyShow(AMapPrivacyShowStatus.DidShow, AMapPrivacyInfoStatus.DidContain,
+      getContext(this))
+    AMapLocationManagerImpl.updatePrivacyAgree(AMapPrivacyAgreeStatus.DidAgree, getContext(this))
+
+    //创建AMapLocationManagerImpl
+    const locationManger = new AMapLocationManagerImpl(getContext(this));
+
+    locationManger?.setLocationListener(AMapLocationType.Single, listener) //设置定位信息监听
+    locationManger?.setLocationOption(AMapLocationType.Single, options) //设置定位配置项
+    locationManger?.requestSingleLocation() //开启获取用的地位单次定位
+
+
     // 先获取用户的地理位置坐标
     const rightLocation = await geoLocationManager.getCurrentLocation()
     // 创建一个地理位置

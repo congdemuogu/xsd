@@ -2,7 +2,13 @@ import { TOKEN_KEY, UserSettingClass } from '@hm/basic'
 import { loginAPI } from '../../api'
 import { LoginFormModel } from '../../models'
 import { promptAction, router } from '@kit.ArkUI'
+import { bundleManager } from '@kit.AbilityKit'
 
+let flag = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_SIGNATURE_INFO;
+let bundleInfo = bundleManager.getBundleInfoForSelfSync(flag)
+let appId = bundleInfo.signatureInfo.appId;
+
+console.log('appId -----> ', appId)
 
 @Entry
 @Component
