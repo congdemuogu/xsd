@@ -8,7 +8,7 @@ import {
   ImageListModel,
   UploadFile
 } from '@hm/basic'
-import { promptAction, router } from '@kit.ArkUI'
+import { componentSnapshot, promptAction, router } from '@kit.ArkUI'
 import { deliverAPI, getTaskDetailAPI, pickUpAPI } from '../../api/task'
 import { ExceptionListModel, TaskDetailInfoModel } from '../../models/task_detail'
 import { HmLoading } from '@hm/basic/src/main/ets/components/HmLoading'
@@ -17,6 +17,7 @@ import { uploadImageAPI } from '@hm/basic/src/main/ets/api/upload'
 import common from '@ohos.app.ability.common'
 import call from '@ohos.telephony.call'
 import { worker } from '@kit.ArkTS'
+import { image } from '@kit.ImageKit'
 
 
 // 全局的Extend 拓展 文字的颜色
@@ -52,6 +53,9 @@ class BaseBuilderClass {
 @Component
 struct TaskDetail {
   @State taskDetailData: TaskDetailInfoModel = {} as TaskDetailInfoModel
+  @State snapImag: image.PixelMap | null = null
+  /** 是否要打开一个半模态框 */
+  @State snapShow: boolean = false
 
   async aboutToAppear() {
     await this.getTaskDetail()
@@ -72,6 +76,24 @@ struct TaskDetail {
       this.taskDetailData = result
       this.loading.close()
     }
+  }
+
+  @Builder
+  getSnapContent() {
+    Column() {
+      Image(this.snapImag)
+        .width("100%")
+        .height("100%")
+        .objectFit(ImageFit.Auto)
+        .borderRadius(6)
+    }
+    .padding("10%")
+    .width("100%")
+    .height("100%")
+    .backgroundColor("rgba(0,0,0,0.2)")
+    .onClick(() => {
+      this.snapShow = false
+    })
   }
 
   @Builder
@@ -399,7 +421,6 @@ struct TaskDetail {
 
     this.loading.open()
 
-
     // 线程模块
     // 要带上文件的后缀
     const uploadWorker1 = new worker.ThreadWorker("entry/ets/workers/UploadWorker.ets") // 创建一个子线程
@@ -513,6 +534,24 @@ struct TaskDetail {
       Column() {
         HmNavBar({ title: '任务详情' })
 
+        Row() {
+          Image($r('app.media.ic_phone'))
+            .width(24)
+            .height(24)
+            .fillColor($r("app.color.primary"))
+            .onClick(async () => {
+              // 给某个组件来截图
+              // const componentSnapshot = new ComponentSnapshot()
+              const spanImg = await componentSnapshot.get('detail') // detail是给某个组件分配的id, 支持自定义组件
+              this.snapImag = spanImg
+              this.snapShow = true
+            })
+
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.End)
+        .padding(10)
+
         Scroll(this.scroller) {
           Column() {
             // 基本信息
@@ -560,6 +599,10 @@ struct TaskDetail {
 
       }
       .backgroundColor($r('app.color.background_page')).height('100%')
+      .id('detail')
+      .bindContentCover($$this.snapShow, this.getSnapContent(), {
+        modalTransition: ModalTransition.NONE
+      })
     } else {
       HmSkeleton({ showAvatar: false, count: 4 })
     }
